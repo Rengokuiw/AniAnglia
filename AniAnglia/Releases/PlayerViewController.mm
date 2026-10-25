@@ -31,21 +31,30 @@
 @end
 
 static const std::string_view preferred_quality = "720";
-std::string choose_quality(const std::unordered_map<std::string, std::string>& quals, const std::string_view preffered) {
-    auto preferred = quals.find(std::string(preffered.data()));
-    if (preferred != quals.end()) {
-        return preferred->second;
-    }		
-    long long_quality = 0;
-    std::string quality_url;
-    for (auto& [q, u] : quals) {
-        long this_long_quality = std::stol(q);
-        if (long_quality < this_long_quality) {
-            long_quality = this_long_quality;
-            quality_url.assign(u);
+std::string choose_quality(const std::unordered_map<std::string, std::string>& quals, const std::string_view preferred) {
+    if (quals.empty()) {
+        return "";
+    }
+    
+    std::string pref_str(preferred.data(), preferred.size());
+    // Direct match check without triggering hash
+    for (const auto& item : quals) {
+        if (item.first == pref_str) {
+            return item.second;
         }
     }
-    return quality_url;
+    
+    // Fallback: pick highest numeric quality, or the first available stream
+    long best_quality = -1;
+    std::string best_url;
+    for (const auto& item : quals) {
+        long q_val = strtol(item.first.c_str(), nullptr, 10);
+        if (q_val > best_quality || best_url.empty()) {
+            best_quality = q_val;
+            best_url = item.second;
+        }
+    }
+    return best_url;
 }
 
 @implementation PlayerViewController
@@ -69,12 +78,26 @@ std::string choose_quality(const std::unordered_map<std::string, std::string>& q
 -(void)loadStreamsAndAutoPlay:(BOOL)auto_play completion:(void(^)(BOOL errored))completion_handler {
     __block BOOL stream_founded = NO;
     [_api_proxy performAsyncBlock:^BOOL(anixart::Api* api){
-        auto ep_target = self->_api_proxy.api->episodes().get_episode_target(self->_release_id, self->_source_id, static_cast<int32_t>(self->_source_position));
-        self->_streams_arr = self->_api_proxy.parsers->extract_info(ep_target->url);
-        auto selected_stream = choose_quality(self->_streams_arr, preferred_quality);
-        self->_selected_stream_url = [NSURL URLWithString:TO_NSSTRING(selected_stream)];
-        stream_founded = !self->_streams_arr.empty();
-        return YES;
+        @try {
+            auto ep_target = self->_api_proxy.api->episodes().get_episode_target(self->_release_id, self->_source_id, static_cast<int32_t>(self->_source_position));
+            if (!ep_target || ep_target->url.empty()) {
+                stream_founded = NO;
+                return YES;
+            }
+            self->_streams_arr = self->_api_proxy.parsers->extract_info(ep_target->url);
+            auto selected_stream = choose_quality(self->_streams_arr, preferred_quality);
+            if (!selected_stream.empty()) {
+                self->_selected_stream_url = [NSURL URLWithString:TO_NSSTRING(selected_stream)];
+                stream_founded = YES;
+            } else {
+                stream_founded = NO;
+            }
+            return YES;
+        } @catch (NSException *ex) {
+            NSLog(@"[PlayerController] Exception loading stream: %@", ex);
+            stream_founded = NO;
+            return YES;
+        }
     } withUICompletion:^{
         completion_handler(!stream_founded);
         if (!stream_founded) {
@@ -98,8 +121,6 @@ std::string choose_quality(const std::unordered_map<std::string, std::string>& q
     _source_id = source_id;
     _source_position = position;
     
-//    _pip_controller = [AVPictureInPictureController alloc] init;
-    
     if (_player_view_controller) {
         _player_view_controller.player = nil;
     }
@@ -107,7 +128,6 @@ std::string choose_quality(const std::unordered_map<std::string, std::string>& q
     PlayerViewController* player_view_controller = [PlayerViewController new];
     [player_view_controller setDelegate:self];
     player_view_controller.modalPresentationStyle = UIModalPresentationFullScreen;
-//    [_pip_controller stopPictureInPicture];
     
     _player_view_controller = player_view_controller;
     
@@ -124,8 +144,23 @@ std::string choose_quality(const std::unordered_map<std::string, std::string>& q
 }
 
 -(void)showViewController:(UIViewController*)view_controller {
-    UIViewController* top_view_controller = [[[[UIApplication sharedApplication] delegate] window] rootViewController]; // should be MainTabBarController
-    [top_view_controller presentViewController:view_controller animated:NO completion:nil];
+    UIWindow *window = [UIApplication sharedApplication].keyWindow;
+    if (!window) window = [[UIApplication sharedApplication].delegate window];
+    UIViewController* top_view_controller = window.rootViewController;
+    while (top_view_controller.presentedViewController) {
+        top_view_controller = top_view_controller.presentedViewController;
+    }
+    if (top_view_controller.isBeingPresented || top_view_controller.isBeingDismissed) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self showViewController:view_controller];
+        });
+        return;
+    }
+    @try {
+        [top_view_controller presentViewController:view_controller animated:NO completion:nil];
+    } @catch (NSException *ex) {
+        NSLog(@"[PlayerController] Exception in showViewController: %@", ex);
+    }
 }
 
 -(void)playWithURL:(NSURL*)url {
@@ -134,24 +169,26 @@ std::string choose_quality(const std::unordered_map<std::string, std::string>& q
 }
 
 -(void)runPlayer {
+    if (!_selected_stream_url) return;
     _player_view_controller.player = [AVPlayer playerWithURL:_selected_stream_url];
-    AVURLAsset* asset = (AVURLAsset*)_player_view_controller.player.currentItem.asset;
     [_player_view_controller.player play];
     
     _player_view_controller.view.backgroundColor = [UIColor blackColor];
     
-    AVMutableMetadataItem* title = [AVMutableMetadataItem new];
-    title.identifier = AVMetadataCommonIdentifierTitle;
-    title.value = @"YO";
-    title.extendedLanguageTag = @"und";
-    AVMutableMetadataItem* desc = [AVMutableMetadataItem new];
-    desc.identifier = AVMetadataCommonIdentifierArtist;
-    desc.value = @"HO";
-    desc.extendedLanguageTag = @"und";
-    _player_view_controller.player.currentItem.externalMetadata = @[
-        title,
-        desc
-    ];
+    if ([_player_view_controller.player.currentItem respondsToSelector:@selector(setExternalMetadata:)]) {
+        AVMutableMetadataItem* title = [AVMutableMetadataItem new];
+        title.identifier = AVMetadataCommonIdentifierTitle;
+        title.value = @"YO";
+        title.extendedLanguageTag = @"und";
+        AVMutableMetadataItem* desc = [AVMutableMetadataItem new];
+        desc.identifier = AVMetadataCommonIdentifierArtist;
+        desc.value = @"HO";
+        desc.extendedLanguageTag = @"und";
+        _player_view_controller.player.currentItem.externalMetadata = @[
+            title,
+            desc
+        ];
+    }
 }
 
 -(void)setupLayout {

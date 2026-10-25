@@ -1209,3 +1209,25 @@ extern "C" OSStatus SecTrustEvaluate(SecTrustRef trust, SecTrustResultType *resu
     return status;
 }
 
+#pragma mark - libc++ iOS 10 Compatibility
+
+namespace std {
+namespace __1 {
+    // Missing symbol on iOS <= 10.3.3 libc++.1.dylib:
+    // __ZNSt3__113__hash_memoryEPKvm -> std::__1::__hash_memory(const void*, unsigned long)
+    __attribute__((visibility("default")))
+    size_t __hash_memory(const void* __p, size_t __n) noexcept {
+        if (!__p || __n == 0) return 0;
+        const uint8_t* data = static_cast<const uint8_t*>(__p);
+        // Standard FNV-1a 64-bit hash algorithm
+        size_t hash = 14695981039346656037ULL;
+        for (size_t i = 0; i < __n; ++i) {
+            hash ^= data[i];
+            hash *= 1099511628211ULL;
+        }
+        return hash;
+    }
+}
+}
+
+
