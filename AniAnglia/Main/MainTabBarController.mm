@@ -170,10 +170,10 @@
     [self setupLayout];
 }
 -(void)setup {
-    _main_filter_bar_button = [[UIBarButtonItem alloc] initWithPrimaryAction:[UIAction actionWithTitle:@"" image:[UIImage systemImageNamed:@"slider.horizontal.3"] identifier:nil handler:^(UIAction* action) {
+    _main_filter_bar_button = [[UIBarButtonItem alloc] initWithPrimaryAction:(id)[UIAction actionWithTitle:@"" image:[UIImage systemImageNamed:@"slider.horizontal.3"] identifier:nil handler:^(UIAction* action) {
         [self onMainFilterBarButtonPressed];
     }]];
-    _discover_filter_bar_button = [[UIBarButtonItem alloc] initWithPrimaryAction:[UIAction actionWithTitle:@"" image:[UIImage systemImageNamed:@"slider.horizontal.3"] identifier:nil handler:^(UIAction* action) {
+    _discover_filter_bar_button = [[UIBarButtonItem alloc] initWithPrimaryAction:(id)[UIAction actionWithTitle:@"" image:[UIImage systemImageNamed:@"slider.horizontal.3"] identifier:nil handler:^(UIAction* action) {
         [self onDiscoverFilterBarButtonPressed];
     }]];
 }

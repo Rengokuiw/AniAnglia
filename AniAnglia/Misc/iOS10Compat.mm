@@ -268,6 +268,18 @@ static BOOL Compat_UIButton_showsMenuAsPrimaryAction(UIButton *self, SEL _cmd) {
     return [objc_getAssociatedObject(self, &kButtonShowsMenuKey) boolValue];
 }
 
+@implementation UIBarButtonItem (iOS10PrimaryActionHelper)
+- (instancetype)initWithPrimaryActionCompat:(id)action {
+    return Compat_UIBarButtonItem_initWithPrimaryAction(self, @selector(initWithPrimaryAction:), action);
+}
+@end
+
+@implementation UIButton (iOS10MenuHelper)
+- (void)setMenuCompat:(id)menu {
+    Compat_UIButton_setMenu(self, @selector(setMenu:), menu);
+}
+@end
+
 #pragma mark - UIColor Fallbacks
 
 static UIColor* Compat_systemBackgroundColor(id self, SEL _cmd) {

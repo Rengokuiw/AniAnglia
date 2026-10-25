@@ -82,6 +82,14 @@ typedef NS_ENUM(NSInteger, UIUserInterfaceStyle) {
 + (UIImage *)compat_systemImageNamed:(NSString *)name;
 @end
 
+@interface UIBarButtonItem (iOS10PrimaryActionHelper)
+- (instancetype)initWithPrimaryActionCompat:(id)primaryAction;
+@end
+
+@interface UIButton (iOS10MenuHelper)
+- (void)setMenuCompat:(id)menu;
+@end
+
 #ifndef UIAction
 #define UIAction AniAngliaCompatAction
 #endif
@@ -96,6 +104,14 @@ typedef NS_ENUM(NSInteger, UIUserInterfaceStyle) {
 
 #ifndef UIContextMenuInteraction
 #define UIContextMenuInteraction AniAngliaCompatContextMenuInteraction
+#endif
+
+#ifndef initWithPrimaryAction
+#define initWithPrimaryAction initWithPrimaryActionCompat
+#endif
+
+#ifndef setMenu
+#define setMenu setMenuCompat
 #endif
 
 #endif /* __OBJC__ */

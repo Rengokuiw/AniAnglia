@@ -43,7 +43,7 @@
     _search_bar.placeholder = _search_bar_placeholder;
     _search_bar.text = _initial_search_bar_text;
     _search_bar.autoresizingMask = UIViewAutoresizingFlexibleHeight;
-    _back_bar_button = [[UIBarButtonItem alloc] initWithPrimaryAction:[UIAction actionWithTitle:@"" image:[UIImage systemImageNamed:@"chevron.left"] identifier:nil handler:^(UIAction* action){
+    _back_bar_button = [[UIBarButtonItem alloc] initWithPrimaryAction:(id)[UIAction actionWithTitle:@"" image:[UIImage systemImageNamed:@"chevron.left"] identifier:nil handler:^(UIAction* action){
         [self onBackButtonPressed];
     }]];
     
