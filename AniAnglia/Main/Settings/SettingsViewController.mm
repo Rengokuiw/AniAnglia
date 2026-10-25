@@ -90,8 +90,8 @@
         case 4: {
             NSDictionary *info = [[NSBundle mainBundle] infoDictionary];
             return [NSString stringWithFormat:@"AniAnglia iOS 10 Port v%@ (build %@)",
-                    info[@"CFBundleShortVersionString"] ?: @"0.10.2",
-                    info[@"CFBundleVersion"] ?: @"3"];
+                    info[@"CFBundleShortVersionString"] ?: @"0.10.3",
+                    info[@"CFBundleVersion"] ?: @"4"];
         }
     }
     return nil;

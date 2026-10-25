@@ -78,6 +78,9 @@
 @interface PlayerViewController : AVPlayerViewController <UIGestureRecognizerDelegate> {
     UITapGestureRecognizer *_doubleTapGesture;
     SeekIndicatorView *_indicatorView;
+    UIButton *_rewindButton;
+    UIButton *_forwardButton;
+    NSTimer *_hideButtonsTimer;
 }
 - (void)seekByDelta:(Float64)delta;
 @end
@@ -89,11 +92,41 @@
     
     _indicatorView = [[SeekIndicatorView alloc] initWithFrame:CGRectMake(0, 0, 80, 80)];
     
+    // Rewind Button
+    _rewindButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    _rewindButton.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.65];
+    _rewindButton.layer.cornerRadius = 14.0;
+    _rewindButton.layer.masksToBounds = YES;
+    [_rewindButton setTitle:@"◀◀ 10" forState:UIControlStateNormal];
+    [_rewindButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    _rewindButton.titleLabel.font = [UIFont boldSystemFontOfSize:15];
+    [_rewindButton addTarget:self action:@selector(rewindButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:_rewindButton];
+    
+    // Forward Button
+    _forwardButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    _forwardButton.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.65];
+    _forwardButton.layer.cornerRadius = 14.0;
+    _forwardButton.layer.masksToBounds = YES;
+    [_forwardButton setTitle:@"10 ▶▶" forState:UIControlStateNormal];
+    [_forwardButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    _forwardButton.titleLabel.font = [UIFont boldSystemFontOfSize:15];
+    [_forwardButton addTarget:self action:@selector(forwardButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:_forwardButton];
+    
+    // Double-tap gesture
     _doubleTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTap:)];
     _doubleTapGesture.numberOfTapsRequired = 2;
     _doubleTapGesture.numberOfTouchesRequired = 1;
     _doubleTapGesture.delegate = self;
     [self.view addGestureRecognizer:_doubleTapGesture];
+    
+    // Single-tap gesture to wake up buttons
+    UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleSingleTap:)];
+    singleTap.numberOfTapsRequired = 1;
+    singleTap.numberOfTouchesRequired = 1;
+    singleTap.delegate = self;
+    [self.view addGestureRecognizer:singleTap];
     
     [self setupRemoteCommandCenter];
 }
@@ -125,38 +158,88 @@
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    [self configureSingleTapGesturesInView:self.view];
+    [self showButtons];
 }
 
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
-    [self configureSingleTapGesturesInView:self.view];
+    
+    CGFloat w = self.view.bounds.size.width;
+    CGFloat h = self.view.bounds.size.height;
+    CGFloat btnW = 84.0;
+    CGFloat btnH = 50.0;
+    CGFloat centerY = h * 0.5;
+    
+    _rewindButton.frame = CGRectMake(w * 0.22 - btnW / 2.0, centerY - btnH / 2.0, btnW, btnH);
+    _forwardButton.frame = CGRectMake(w * 0.78 - btnW / 2.0, centerY - btnH / 2.0, btnW, btnH);
+    
+    [self.view bringSubviewToFront:_rewindButton];
+    [self.view bringSubviewToFront:_forwardButton];
+    if (_indicatorView.superview) {
+        [self.view bringSubviewToFront:_indicatorView];
+    }
 }
 
-- (void)configureSingleTapGesturesInView:(UIView *)rootView {
-    for (UIGestureRecognizer *gr in rootView.gestureRecognizers) {
-        if ([gr isKindOfClass:[UITapGestureRecognizer class]]) {
-            UITapGestureRecognizer *tgr = (UITapGestureRecognizer *)gr;
-            if (tgr.numberOfTapsRequired == 1 && tgr != _doubleTapGesture) {
-                [tgr requireGestureRecognizerToFail:_doubleTapGesture];
-            }
-        }
+- (void)rewindButtonTapped:(UIButton *)sender {
+    [self seekByDelta:-10.0];
+    [_indicatorView showInView:self.view isForward:NO];
+    [self pulseButton:sender];
+    [self resetButtonsTimer];
+}
+
+- (void)forwardButtonTapped:(UIButton *)sender {
+    [self seekByDelta:10.0];
+    [_indicatorView showInView:self.view isForward:YES];
+    [self pulseButton:sender];
+    [self resetButtonsTimer];
+}
+
+- (void)pulseButton:(UIButton *)btn {
+    [UIView animateWithDuration:0.1 animations:^{
+        btn.transform = CGAffineTransformMakeScale(1.15, 1.15);
+    } completion:^(BOOL finished) {
+        [UIView animateWithDuration:0.15 animations:^{
+            btn.transform = CGAffineTransformIdentity;
+        }];
+    }];
+}
+
+- (void)handleSingleTap:(UITapGestureRecognizer *)gesture {
+    if (_rewindButton.alpha < 0.1) {
+        [self showButtons];
+    } else {
+        [self resetButtonsTimer];
     }
-    for (UIView *sub in rootView.subviews) {
-        [self configureSingleTapGesturesInView:sub];
-    }
+}
+
+- (void)showButtons {
+    [UIView animateWithDuration:0.25 animations:^{
+        self->_rewindButton.alpha = 1.0;
+        self->_forwardButton.alpha = 1.0;
+    }];
+    [self resetButtonsTimer];
+}
+
+- (void)hideButtons {
+    [UIView animateWithDuration:0.35 animations:^{
+        self->_rewindButton.alpha = 0.0;
+        self->_forwardButton.alpha = 0.0;
+    }];
+}
+
+- (void)resetButtonsTimer {
+    [_hideButtonsTimer invalidate];
+    _hideButtonsTimer = [NSTimer scheduledTimerWithTimeInterval:4.0 target:self selector:@selector(hideButtons) userInfo:nil repeats:NO];
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
-    if (gestureRecognizer == _doubleTapGesture) {
-        UIView *v = touch.view;
-        while (v && v != self.view) {
-            if ([v isKindOfClass:[UIControl class]]) {
-                return NO;
-            }
-            v = v.superview;
-        }
+    if ([touch.view isKindOfClass:[UIButton class]] || [touch.view isKindOfClass:[UISlider class]]) {
+        return NO;
     }
+    return YES;
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
     return YES;
 }
 
@@ -170,6 +253,7 @@
     
     [self seekByDelta:delta];
     [_indicatorView showInView:self.view isForward:isForward];
+    [self showButtons];
 }
 
 static inline Float64 safe_CMTimeGetSeconds(CMTime t) {
