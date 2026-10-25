@@ -15,6 +15,7 @@
 #import "AppDataController.h"
 #import "SettingsAppearanceViewController.h"
 #import "SettingsSecurityViewController.h"
+#import "DownloadsViewController.h"
 
 @interface SettingsViewController () <UITableViewDataSource, UITableViewDelegate>
 @property(nonatomic, strong) LibanixartApi* api_proxy;
@@ -248,6 +249,8 @@
     } else if (section == 1) {
         if (row == 0) {
             [self onAppearanceSelected];
+        } else if (row == 2) {
+            [self.navigationController pushViewController:[DownloadsViewController new] animated:YES];
         } else {
             [self showComingSoonAlert];
         }

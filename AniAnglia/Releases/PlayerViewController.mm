@@ -498,12 +498,32 @@ static inline std::string choose_quality(const std::unordered_map<std::string, s
     }
 }
 
+-(void)playLocalFileURL:(NSURL*)url title:(NSString*)title {
+    if (_player_view_controller) {
+        _player_view_controller.player = nil;
+    }
+    
+    PlayerViewController* player_view_controller = [PlayerViewController new];
+    [player_view_controller setDelegate:self];
+    player_view_controller.modalPresentationStyle = UIModalPresentationFullScreen;
+    
+    _player_view_controller = player_view_controller;
+    _selected_stream_url = url;
+    
+    [self showViewController:player_view_controller];
+    [self runPlayerWithTitle:title];
+}
+
 -(void)playWithURL:(NSURL*)url {
     _selected_stream_url = url;
     [self runPlayer];
 }
 
 -(void)runPlayer {
+    [self runPlayerWithTitle:@"AniAnglia"];
+}
+
+-(void)runPlayerWithTitle:(NSString*)titleString {
     if (!_selected_stream_url) return;
     _player_view_controller.player = [AVPlayer playerWithURL:_selected_stream_url];
     [_player_view_controller.player play];
@@ -513,15 +533,10 @@ static inline std::string choose_quality(const std::unordered_map<std::string, s
     if ([_player_view_controller.player.currentItem respondsToSelector:@selector(setExternalMetadata:)]) {
         AVMutableMetadataItem* title = [AVMutableMetadataItem new];
         title.identifier = AVMetadataCommonIdentifierTitle;
-        title.value = @"YO";
+        title.value = titleString ?: @"AniAnglia";
         title.extendedLanguageTag = @"und";
-        AVMutableMetadataItem* desc = [AVMutableMetadataItem new];
-        desc.identifier = AVMetadataCommonIdentifierArtist;
-        desc.value = @"HO";
-        desc.extendedLanguageTag = @"und";
         _player_view_controller.player.currentItem.externalMetadata = @[
-            title,
-            desc
+            title
         ];
     }
 }

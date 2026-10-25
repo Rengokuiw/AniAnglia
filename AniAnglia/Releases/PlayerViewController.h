@@ -16,6 +16,7 @@
 
 -(void)playWithReleaseID:(anixart::ReleaseID)release_id sourceID:(anixart::EpisodeSourceID)source_id position:(long)position autoShow:(BOOL)auto_show completion:(void(^)(BOOL errored))completion_handler;
 -(void)playWithURL:(NSURL*)url;
+-(void)playLocalFileURL:(NSURL*)url title:(NSString*)title;
 
 -(AVPlayerViewController*)getPlayer;
 

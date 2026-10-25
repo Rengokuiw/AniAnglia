@@ -60,6 +60,8 @@
 		EF9DACA02DFA34820020C182 /* ReleasesHistoryTableViewCells.mm in Sources */ = {isa = PBXBuildFile; fileRef = EF9DAC9F2DFA34820020C182 /* ReleasesHistoryTableViewCells.mm */; };
 		EF9FE8632DB3196500792D0D /* ReleasesViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = EF9FE8622DB3196500792D0D /* ReleasesViewController.mm */; };
 		EFA1F93B2CB4301B00555A26 /* EpisodeSelectViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = EFA1F9392CB4301A00555A26 /* EpisodeSelectViewController.mm */; };
+		EFA1F9522CB4301B00555A26 /* DownloadManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = EFA1F9512CB4301A00555A26 /* DownloadManager.mm */; };
+		EFA1F9552CB4301B00555A26 /* DownloadsViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = EFA1F9542CB4301A00555A26 /* DownloadsViewController.mm */; };
 		EFA1F93D2CB4920800555A26 /* PlayerViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = EFA1F93C2CB4920800555A26 /* PlayerViewController.mm */; };
 		EFA1F9402CB497D600555A26 /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EFA1F93F2CB497D500555A26 /* AVKit.framework */; };
 		EFA1F9442CB8EA8000555A26 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EFA1F9432CB8EA7F00555A26 /* AVFoundation.framework */; };
@@ -1365,6 +1367,10 @@
 		EF9FE8622DB3196500792D0D /* ReleasesViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ReleasesViewController.mm; sourceTree = "<group>"; };
 		EFA1F9392CB4301A00555A26 /* EpisodeSelectViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EpisodeSelectViewController.mm; sourceTree = "<group>"; };
 		EFA1F93A2CB4301A00555A26 /* EpisodeSelectViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EpisodeSelectViewController.h; sourceTree = "<group>"; };
+		EFA1F9502CB4301A00555A26 /* DownloadManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloadManager.h; sourceTree = "<group>"; };
+		EFA1F9512CB4301A00555A26 /* DownloadManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DownloadManager.mm; sourceTree = "<group>"; };
+		EFA1F9532CB4301A00555A26 /* DownloadsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloadsViewController.h; sourceTree = "<group>"; };
+		EFA1F9542CB4301A00555A26 /* DownloadsViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DownloadsViewController.mm; sourceTree = "<group>"; };
 		EFA1F93C2CB4920800555A26 /* PlayerViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = PlayerViewController.mm; sourceTree = "<group>"; };
 		EFA1F93E2CB4922200555A26 /* PlayerViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlayerViewController.h; sourceTree = "<group>"; };
 		EFA1F93F2CB497D500555A26 /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
@@ -1501,6 +1507,10 @@
 				EFD505E32CB0764700E87BF1 /* SourceSelectViewController.mm */,
 				EFA1F93A2CB4301A00555A26 /* EpisodeSelectViewController.h */,
 				EFA1F9392CB4301A00555A26 /* EpisodeSelectViewController.mm */,
+				EFA1F9502CB4301A00555A26 /* DownloadManager.h */,
+				EFA1F9512CB4301A00555A26 /* DownloadManager.mm */,
+				EFA1F9532CB4301A00555A26 /* DownloadsViewController.h */,
+				EFA1F9542CB4301A00555A26 /* DownloadsViewController.mm */,
 				EFA1F93E2CB4922200555A26 /* PlayerViewController.h */,
 				EFA1F93C2CB4920800555A26 /* PlayerViewController.mm */,
 			);
@@ -3766,6 +3776,8 @@
 				EFED8F572CE2986300C53C1C /* LoadableView.mm in Sources */,
 				EFFA3C482DAD535200DE042A /* ProfileCommentsPageViewController.mm in Sources */,
 				EFA1F93B2CB4301B00555A26 /* EpisodeSelectViewController.mm in Sources */,
+				EFA1F9522CB4301B00555A26 /* DownloadManager.mm in Sources */,
+				EFA1F9552CB4301B00555A26 /* DownloadsViewController.mm in Sources */,
 				EFA7322F2DFE25A900FBC12C /* NamedSectionsStackView.mm in Sources */,
 				EF8B01B52C7015A300423ECD /* AuthViewController.mm in Sources */,
 				EF17A2E62DB6B259003429FC /* ProfilesPageableDataProvider.mm in Sources */,
@@ -3934,7 +3946,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = AniAnglia/AniAnglia.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = CH7CVD4PVH;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AniAnglia/Info.plist;
@@ -3949,7 +3961,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.10.4;
+				MARKETING_VERSION = 0.10.5;
 				PRODUCT_BUNDLE_IDENTIFIER = org.aateam.AniAnglia;
 				PRODUCT_NAME = AniAngliaXIX;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -3964,7 +3976,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = AniAnglia/AniAnglia.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = CH7CVD4PVH;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AniAnglia/Info.plist;
@@ -3979,7 +3991,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.10.4;
+				MARKETING_VERSION = 0.10.5;
 				PRODUCT_BUNDLE_IDENTIFIER = org.aateam.AniAnglia;
 				PRODUCT_NAME = AniAngliaXIX;
 				SWIFT_EMIT_LOC_STRINGS = YES;
