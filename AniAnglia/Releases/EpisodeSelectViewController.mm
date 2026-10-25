@@ -223,7 +223,7 @@ static inline std::string choose_quality(const std::unordered_map<std::string, s
     NSDictionary *ui = note.userInfo;
     if (!ui) return;
     long rel_id = [ui[@"release_id"] longLongValue];
-    if (rel_id != _release_id) return;
+    if (rel_id != (long long)_release_id) return;
     long pos = [ui[@"position"] longLongValue];
     
     for (NSInteger i = 0; i < (NSInteger)_episodes.size(); i++) {
@@ -243,7 +243,7 @@ static inline std::string choose_quality(const std::unordered_map<std::string, s
     NSDictionary *ui = note.userInfo;
     if (!ui) return;
     long rel_id = [ui[@"release_id"] longLongValue];
-    if (rel_id != _release_id) return;
+    if (rel_id != (long long)_release_id) return;
     long pos = [ui[@"position"] longLongValue];
     
     for (NSInteger i = 0; i < (NSInteger)_episodes.size(); i++) {
@@ -329,14 +329,17 @@ static inline std::string choose_quality(const std::unordered_map<std::string, s
     [cell setWatchedStatus:episode->is_watched];
 
     DownloadManager *dm = [DownloadManager sharedInstance];
-    BOOL isDownloaded = [dm isEpisodeDownloadedWithReleaseID:_release_id position:episode->position];
-    BOOL isDownloading = [dm isEpisodeDownloadingWithReleaseID:_release_id position:episode->position];
-    float progress = [dm downloadProgressForReleaseID:_release_id position:episode->position];
+    BOOL isDownloaded = [dm isEpisodeDownloadedWithReleaseID:(long long)_release_id position:episode->position];
+    BOOL isDownloading = [dm isEpisodeDownloadingWithReleaseID:(long long)_release_id position:episode->position];
+    float progress = [dm downloadProgressForReleaseID:(long long)_release_id position:episode->position];
     [cell setDownloadStatusWithDownloaded:isDownloaded downloading:isDownloading progress:progress];
     
     __weak EpisodeSelectViewController *weakSelf = self;
     cell.onDownloadTapped = ^{
-        [weakSelf cellDownloadButtonActionPressed:index_path];
+        EpisodeSelectViewController *strongSelf = weakSelf;
+        if (strongSelf) {
+            [strongSelf cellDownloadButtonActionPressed:index_path];
+        }
     };
 
     return cell;
@@ -398,7 +401,7 @@ static inline std::string choose_quality(const std::unordered_map<std::string, s
     
     NSString *epTitle = TO_NSSTRING(episode->name);
     DownloadManager *dm = [DownloadManager sharedInstance];
-    NSString *localPath = [dm localFilePathForReleaseID:_release_id position:episode->position];
+    NSString *localPath = [dm localFilePathForReleaseID:(long long)_release_id position:episode->position];
     if (localPath) {
         // Play local file completely offline!
         NSString *fullTitle = [NSString stringWithFormat:@"%@ - %@", _type_name ?: @"", epTitle];
@@ -448,7 +451,7 @@ static inline std::string choose_quality(const std::unordered_map<std::string, s
     DownloadManager *dm = [DownloadManager sharedInstance];
     NSString *epTitle = TO_NSSTRING(episode->name);
     
-    if ([dm isEpisodeDownloadedWithReleaseID:_release_id position:episode->position]) {
+    if ([dm isEpisodeDownloadedWithReleaseID:(long long)_release_id position:episode->position]) {
         UIAlertController *alert = [UIAlertController alertControllerWithTitle:epTitle
                                                                        message:NSLocalizedString(@"app.download.already_downloaded", @"Эта серия уже сохранена на устройстве.")
                                                                 preferredStyle:UIAlertControllerStyleActionSheet];
@@ -456,7 +459,7 @@ static inline std::string choose_quality(const std::unordered_map<std::string, s
         [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"app.download.play_offline", @"Смотреть оффлайн")
                                                   style:UIAlertActionStyleDefault
                                                 handler:^(UIAlertAction * _Nonnull action) {
-            NSString *localPath = [dm localFilePathForReleaseID:self->_release_id position:episode->position];
+            NSString *localPath = [dm localFilePathForReleaseID:(long long)self->_release_id position:episode->position];
             if (localPath) {
                 NSString *fullTitle = [NSString stringWithFormat:@"%@ - %@", self->_type_name ?: @"", epTitle];
                 [[PlayerController sharedInstance] playLocalFileURL:[NSURL fileURLWithPath:localPath] title:fullTitle];
@@ -466,7 +469,7 @@ static inline std::string choose_quality(const std::unordered_map<std::string, s
         [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"app.download.delete", @"Удалить загрузку")
                                                   style:UIAlertActionStyleDestructive
                                                 handler:^(UIAlertAction * _Nonnull action) {
-            [dm deleteDownloadWithReleaseID:self->_release_id position:episode->position];
+            [dm deleteDownloadWithReleaseID:(long long)self->_release_id position:episode->position];
             [self->_table_view reloadRowsAtIndexPaths:@[index_path] withRowAnimation:UITableViewRowAnimationNone];
         }]];
         
@@ -483,8 +486,8 @@ static inline std::string choose_quality(const std::unordered_map<std::string, s
         return;
     }
     
-    if ([dm isEpisodeDownloadingWithReleaseID:_release_id position:episode->position]) {
-        float prog = [dm downloadProgressForReleaseID:_release_id position:episode->position];
+    if ([dm isEpisodeDownloadingWithReleaseID:(long long)_release_id position:episode->position]) {
+        float prog = [dm downloadProgressForReleaseID:(long long)_release_id position:episode->position];
         NSString *msg = [NSString stringWithFormat:NSLocalizedString(@"app.download.in_progress_msg", @"Серия скачивается... (%d%%)"), (int)(prog * 100)];
         UIAlertController *alert = [UIAlertController alertControllerWithTitle:epTitle
                                                                        message:msg
@@ -493,7 +496,7 @@ static inline std::string choose_quality(const std::unordered_map<std::string, s
         [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"app.download.cancel_download", @"Отменить скачивание")
                                                   style:UIAlertActionStyleDestructive
                                                 handler:^(UIAlertAction * _Nonnull action) {
-            [dm cancelDownloadWithReleaseID:self->_release_id position:episode->position];
+            [dm cancelDownloadWithReleaseID:(long long)self->_release_id position:episode->position];
             [self->_table_view reloadRowsAtIndexPaths:@[index_path] withRowAnimation:UITableViewRowAnimationNone];
         }]];
         
@@ -514,14 +517,23 @@ static inline std::string choose_quality(const std::unordered_map<std::string, s
     EpisodeViewCell *cell = [_table_view cellForRowAtIndexPath:index_path];
     [cell setDownloadStatusWithDownloaded:NO downloading:YES progress:0.01f];
     
+    long long raw_rel_id = static_cast<long long>(_release_id);
+    long long raw_src_id = static_cast<long long>(_source_id);
+    anixart::ReleaseID capture_rel_id = _release_id;
+    anixart::EpisodeSourceID capture_src_id = _source_id;
+    NSString *capture_type_name = _type_name;
+    NSString *capture_src_name = _source_name;
+    int32_t pos = static_cast<int32_t>(episode->position);
+    
     __weak EpisodeSelectViewController *weakSelf = self;
     [_api_proxy performAsyncBlock:^BOOL(anixart::Api* api){
         try {
-            auto ep_target = weakSelf->_api_proxy.api->episodes().get_episode_target(weakSelf->_release_id, weakSelf->_source_id, static_cast<int32_t>(episode->position));
+            auto ep_target = api->episodes().get_episode_target(capture_rel_id, capture_src_id, pos);
             if (!ep_target || ep_target->url.empty()) {
                 return NO;
             }
-            auto streams_arr = weakSelf->_api_proxy.parsers->extract_info(ep_target->url);
+            auto parsers = [LibanixartApi sharedInstance].parsers;
+            auto streams_arr = parsers->extract_info(ep_target->url);
             auto selected_stream = choose_quality(streams_arr, preferred_quality);
             if (selected_stream.empty()) {
                 return NO;
@@ -529,13 +541,16 @@ static inline std::string choose_quality(const std::unordered_map<std::string, s
             NSURL *url = [NSURL URLWithString:TO_NSSTRING(selected_stream)];
             dispatch_async(dispatch_get_main_queue(), ^{
                 [dm startDownloadWithURL:url
-                               releaseID:weakSelf->_release_id
-                                sourceID:weakSelf->_source_id
-                                position:episode->position
-                            releaseTitle:weakSelf->_type_name
+                               releaseID:raw_rel_id
+                                sourceID:raw_src_id
+                                position:pos
+                            releaseTitle:capture_type_name
                             episodeTitle:epTitle
-                              sourceName:weakSelf->_source_name];
-                [weakSelf->_table_view reloadRowsAtIndexPaths:@[index_path] withRowAnimation:UITableViewRowAnimationNone];
+                              sourceName:capture_src_name];
+                EpisodeSelectViewController *strongSelf = weakSelf;
+                if (strongSelf) {
+                    [strongSelf->_table_view reloadRowsAtIndexPaths:@[index_path] withRowAnimation:UITableViewRowAnimationNone];
+                }
             });
             return YES;
         } catch (...) {
