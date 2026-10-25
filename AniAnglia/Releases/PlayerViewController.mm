@@ -75,9 +75,10 @@
 
 @end
 
-@interface PlayerViewController () <UIGestureRecognizerDelegate>
-@property (nonatomic, strong) UITapGestureRecognizer *doubleTapGesture;
-@property (nonatomic, strong) SeekIndicatorView *indicatorView;
+@interface PlayerViewController : AVPlayerViewController <UIGestureRecognizerDelegate> {
+    UITapGestureRecognizer *_doubleTapGesture;
+    SeekIndicatorView *_indicatorView;
+}
 - (void)seekByDelta:(Float64)delta;
 @end
 
@@ -104,7 +105,7 @@
     
     commandCenter.skipBackwardCommand.enabled = YES;
     commandCenter.skipBackwardCommand.preferredIntervals = @[@10];
-    __weak typeof(self) weakSelf = self;
+    __weak PlayerViewController *weakSelf = self;
     [commandCenter.skipBackwardCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
         MPSkipIntervalCommandEvent *skipEvent = (MPSkipIntervalCommandEvent *)event;
         Float64 interval = (skipEvent.interval > 0) ? skipEvent.interval : 10.0;
