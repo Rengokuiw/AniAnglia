@@ -87,7 +87,7 @@
             errored |= block(self->_api);
         }
         catch (const anixart::ApiError& e) {
-            errorMessage = [NSString stringWithFormat:@"ApiError: %s (code %d)", e.what(), e.code()];
+            errorMessage = [NSString stringWithFormat:@"ApiError: %s", e.what()];
             NSLog(@"Uncatched libanixart api exception: %@", errorMessage);
             errored = YES;
         }
