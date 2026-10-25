@@ -256,23 +256,34 @@
     EpisodeViewCell* cell = [table_view cellForRowAtIndexPath:index_path];
     [table_view deselectRowAtIndexPath:index_path animated:YES];
     
+    if (index < 0 || (size_t)index >= _episodes.size()) {
+        return;
+    }
     anixart::Episode::Ptr episode = _episodes[index];
-    [[PlayerController sharedInstance] playWithReleaseID:_release_id sourceID:_source_id position:episode->position autoShow:YES completion:^(BOOL errored){
-        if (errored) {
-            return;
-        }
-        /* pre set just for instant UI update. Then update to real state */
-        episode->is_watched = YES;
-        [cell setWatchedStatus:YES];
-        
-        [self->_api_proxy performAsyncBlock:^BOOL(anixart::Api* api) {
-            api->episodes().add_watched_episode(self->_release_id, self->_source_id, episode->position);
-            return YES;
-        } withUICompletion:^{
+    if (!episode) return;
+    
+    @try {
+        [[PlayerController sharedInstance] playWithReleaseID:_release_id sourceID:_source_id position:episode->position autoShow:YES completion:^(BOOL errored){
+            if (errored) {
+                return;
+            }
+            /* pre set just for instant UI update. Then update to real state */
             episode->is_watched = YES;
             [cell setWatchedStatus:YES];
+            
+            [self->_api_proxy performAsyncBlock:^BOOL(anixart::Api* api) {
+                @try {
+                    api->episodes().add_watched_episode(self->_release_id, self->_source_id, episode->position);
+                } @catch (id) {}
+                return YES;
+            } withUICompletion:^{
+                episode->is_watched = YES;
+                [cell setWatchedStatus:YES];
+            }];
         }];
-    }];
+    } @catch (NSException *e) {
+        NSLog(@"[EpisodeSelectViewController] Exception starting player: %@", e);
+    }
 }
 
 -(void)cellDownloadButtonActionPressed:(NSIndexPath*)index_path {

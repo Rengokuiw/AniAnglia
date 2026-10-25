@@ -3934,7 +3934,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = AniAnglia/AniAnglia.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = CH7CVD4PVH;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AniAnglia/Info.plist;
@@ -3949,7 +3949,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.10;
+				MARKETING_VERSION = 0.10.1;
 				PRODUCT_BUNDLE_IDENTIFIER = org.aateam.AniAnglia;
 				PRODUCT_NAME = AniAngliaXIX;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -3964,7 +3964,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = AniAnglia/AniAnglia.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = CH7CVD4PVH;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AniAnglia/Info.plist;
@@ -3979,7 +3979,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.10;
+				MARKETING_VERSION = 0.10.1;
 				PRODUCT_BUNDLE_IDENTIFIER = org.aateam.AniAnglia;
 				PRODUCT_NAME = AniAngliaXIX;
 				SWIFT_EMIT_LOC_STRINGS = YES;

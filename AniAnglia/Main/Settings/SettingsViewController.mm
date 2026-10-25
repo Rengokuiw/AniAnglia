@@ -87,6 +87,12 @@
     switch (section) {
         case 2:
             return NSLocalizedString(@"app.settings.alternative_connection.footer", "");
+        case 4: {
+            NSDictionary *info = [[NSBundle mainBundle] infoDictionary];
+            return [NSString stringWithFormat:@"AniAnglia iOS 10 Port v%@ (build %@)",
+                    info[@"CFBundleShortVersionString"] ?: @"0.10.1",
+                    info[@"CFBundleVersion"] ?: @"2"];
+        }
     }
     return nil;
 }

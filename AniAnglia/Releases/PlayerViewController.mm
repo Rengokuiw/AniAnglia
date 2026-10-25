@@ -31,7 +31,7 @@
 @end
 
 static const std::string_view preferred_quality = "720";
-std::string choose_quality(const std::unordered_map<std::string, std::string>& quals, const std::string_view preferred) {
+static inline std::string choose_quality(const std::unordered_map<std::string, std::string>& quals, const std::string_view preferred) {
     if (quals.empty()) {
         return "";
     }
@@ -79,20 +79,30 @@ std::string choose_quality(const std::unordered_map<std::string, std::string>& q
     __block BOOL stream_founded = NO;
     [_api_proxy performAsyncBlock:^BOOL(anixart::Api* api){
         @try {
-            auto ep_target = self->_api_proxy.api->episodes().get_episode_target(self->_release_id, self->_source_id, static_cast<int32_t>(self->_source_position));
-            if (!ep_target || ep_target->url.empty()) {
+            try {
+                auto ep_target = self->_api_proxy.api->episodes().get_episode_target(self->_release_id, self->_source_id, static_cast<int32_t>(self->_source_position));
+                if (!ep_target || ep_target->url.empty()) {
+                    stream_founded = NO;
+                    return YES;
+                }
+                self->_streams_arr = self->_api_proxy.parsers->extract_info(ep_target->url);
+                auto selected_stream = choose_quality(self->_streams_arr, preferred_quality);
+                if (!selected_stream.empty()) {
+                    self->_selected_stream_url = [NSURL URLWithString:TO_NSSTRING(selected_stream)];
+                    stream_founded = YES;
+                } else {
+                    stream_founded = NO;
+                }
+                return YES;
+            } catch (const std::exception& e) {
+                NSLog(@"[PlayerController] C++ exception loading stream: %s", e.what());
+                stream_founded = NO;
+                return YES;
+            } catch (...) {
+                NSLog(@"[PlayerController] Unknown C++ exception loading stream");
                 stream_founded = NO;
                 return YES;
             }
-            self->_streams_arr = self->_api_proxy.parsers->extract_info(ep_target->url);
-            auto selected_stream = choose_quality(self->_streams_arr, preferred_quality);
-            if (!selected_stream.empty()) {
-                self->_selected_stream_url = [NSURL URLWithString:TO_NSSTRING(selected_stream)];
-                stream_founded = YES;
-            } else {
-                stream_founded = NO;
-            }
-            return YES;
         } @catch (NSException *ex) {
             NSLog(@"[PlayerController] Exception loading stream: %@", ex);
             stream_founded = NO;
