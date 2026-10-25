@@ -156,8 +156,8 @@
     [self.view addSubview:_table_view];
     
     _table_view.translatesAutoresizingMaskIntoConstraints = NO;
-    id<NSLayoutYAxisAnchor> topAnchor = nil;
-    id<NSLayoutYAxisAnchor> bottomAnchor = nil;
+    NSLayoutYAxisAnchor *topAnchor = nil;
+    NSLayoutYAxisAnchor *bottomAnchor = nil;
     if (@available(iOS 11.0, *)) {
         topAnchor = self.view.safeAreaLayoutGuide.topAnchor;
         bottomAnchor = self.view.safeAreaLayoutGuide.bottomAnchor;
