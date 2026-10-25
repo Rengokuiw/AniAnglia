@@ -156,11 +156,21 @@
     [self.view addSubview:_table_view];
     
     _table_view.translatesAutoresizingMaskIntoConstraints = NO;
+    id<NSLayoutYAxisAnchor> topAnchor = nil;
+    id<NSLayoutYAxisAnchor> bottomAnchor = nil;
+    if (@available(iOS 11.0, *)) {
+        topAnchor = self.view.safeAreaLayoutGuide.topAnchor;
+        bottomAnchor = self.view.safeAreaLayoutGuide.bottomAnchor;
+    } else {
+        topAnchor = self.topLayoutGuide.bottomAnchor;
+        bottomAnchor = self.bottomLayoutGuide.topAnchor;
+    }
+    
     [NSLayoutConstraint activateConstraints:@[
-        [_table_view.leftAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.leftAnchor],
-        [_table_view.rightAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.rightAnchor],
-        [_table_view.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor],
-        [_table_view.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor]
+        [_table_view.leftAnchor constraintEqualToAnchor:self.view.leftAnchor],
+        [_table_view.rightAnchor constraintEqualToAnchor:self.view.rightAnchor],
+        [_table_view.topAnchor constraintEqualToAnchor:topAnchor],
+        [_table_view.bottomAnchor constraintEqualToAnchor:bottomAnchor]
     ]];
 }
 

@@ -158,11 +158,14 @@
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    self.videoGravity = AVLayerVideoGravityResizeAspect;
+    [self disableAppleDoubleTapZoomInView:self.view];
     [self showButtons];
 }
 
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
+    [self disableAppleDoubleTapZoomInView:self.view];
     
     CGFloat w = self.view.bounds.size.width;
     CGFloat h = self.view.bounds.size.height;
@@ -177,6 +180,20 @@
     [self.view bringSubviewToFront:_forwardButton];
     if (_indicatorView.superview) {
         [self.view bringSubviewToFront:_indicatorView];
+    }
+}
+
+- (void)disableAppleDoubleTapZoomInView:(UIView *)rootView {
+    for (UIGestureRecognizer *gr in rootView.gestureRecognizers) {
+        if ([gr isKindOfClass:[UITapGestureRecognizer class]]) {
+            UITapGestureRecognizer *tgr = (UITapGestureRecognizer *)gr;
+            if (tgr.numberOfTapsRequired == 2 && tgr != _doubleTapGesture) {
+                tgr.enabled = NO; // Disable Apple's built-in double-tap zoom
+            }
+        }
+    }
+    for (UIView *sub in rootView.subviews) {
+        [self disableAppleDoubleTapZoomInView:sub];
     }
 }
 
@@ -240,11 +257,32 @@
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    if ([otherGestureRecognizer isKindOfClass:[UITapGestureRecognizer class]]) {
+        UITapGestureRecognizer *tgr = (UITapGestureRecognizer *)otherGestureRecognizer;
+        if (tgr.numberOfTapsRequired == 2) {
+            tgr.enabled = NO; // Prevent Apple's double-tap zoom
+            return NO;
+        }
+    }
     return YES;
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldBeRequiredToFailByGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    if ([otherGestureRecognizer isKindOfClass:[UITapGestureRecognizer class]]) {
+        UITapGestureRecognizer *tgr = (UITapGestureRecognizer *)otherGestureRecognizer;
+        if (tgr.numberOfTapsRequired == 2 && tgr != _doubleTapGesture) {
+            tgr.enabled = NO;
+            return YES;
+        }
+    }
+    return NO;
 }
 
 - (void)handleDoubleTap:(UITapGestureRecognizer *)gesture {
     if (gesture.state != UIGestureRecognizerStateEnded) return;
+    
+    // Maintain normal aspect ratio and prevent zoom
+    self.videoGravity = AVLayerVideoGravityResizeAspect;
     
     CGPoint loc = [gesture locationInView:self.view];
     CGFloat width = self.view.bounds.size.width;

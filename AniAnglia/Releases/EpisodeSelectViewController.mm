@@ -136,37 +136,35 @@
     _table_view.dataSource = self;
     _table_view.delegate = self;
     
-    _type_name_label = [UILabel new];
+    CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
+    _header_view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, screenWidth, 55)];
+    
+    _type_name_label = [[UILabel alloc] initWithFrame:CGRectMake(16, 10, screenWidth - 32, 35)];
     _type_name_label.text = [NSString stringWithFormat:@"%@ (%@)", _type_name, _source_name];
     _type_name_label.font = [UIFont boldSystemFontOfSize:25];
-    
-    _header_view = [UIView new];
-    
-    [self.view addSubview:_table_view];
+    _type_name_label.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     [_header_view addSubview:_type_name_label];
+    
     _table_view.tableHeaderView = _header_view;
+    [self.view addSubview:_table_view];
     
     _table_view.translatesAutoresizingMaskIntoConstraints = NO;
-    _header_view.translatesAutoresizingMaskIntoConstraints = NO;
-    _type_name_label.translatesAutoresizingMaskIntoConstraints = NO;
-    [NSLayoutConstraint activateConstraints:@[
-        [_header_view.topAnchor constraintEqualToAnchor:_table_view.topAnchor],
-        [_header_view.leadingAnchor constraintEqualToAnchor:_table_view.layoutMarginsGuide.leadingAnchor],
-        [_header_view.trailingAnchor constraintEqualToAnchor:_table_view.layoutMarginsGuide.trailingAnchor],
-        [_header_view.heightAnchor constraintEqualToAnchor:_type_name_label.heightAnchor constant:5],
-        
-        [_type_name_label.leadingAnchor constraintEqualToAnchor:_header_view.leadingAnchor],
-        [_type_name_label.trailingAnchor constraintEqualToAnchor:_header_view.trailingAnchor],
-        
-        [_table_view.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor],
-        [_table_view.leadingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.leadingAnchor],
-        [_table_view.trailingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor],
-        [_table_view.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor]
-    ]];
+    id<NSLayoutYAxisAnchor> topAnchor = nil;
+    id<NSLayoutYAxisAnchor> bottomAnchor = nil;
+    if (@available(iOS 11.0, *)) {
+        topAnchor = self.view.safeAreaLayoutGuide.topAnchor;
+        bottomAnchor = self.view.safeAreaLayoutGuide.bottomAnchor;
+    } else {
+        topAnchor = self.topLayoutGuide.bottomAnchor;
+        bottomAnchor = self.bottomLayoutGuide.topAnchor;
+    }
     
-    [_header_view setNeedsLayout];
-    [_header_view layoutIfNeeded];
-    _table_view.tableHeaderView = _header_view;
+    [NSLayoutConstraint activateConstraints:@[
+        [_table_view.topAnchor constraintEqualToAnchor:topAnchor],
+        [_table_view.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
+        [_table_view.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
+        [_table_view.bottomAnchor constraintEqualToAnchor:bottomAnchor]
+    ]];
 }
 
 -(void)preSetupLayout {
