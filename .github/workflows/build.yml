@@ -31,7 +31,7 @@ jobs:
           xcodebuild -project AniAnglia.xcodeproj \
             -scheme iOSAnixart \
             -configuration Release \
-            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
             -derivedDataPath build \
             IPHONEOS_DEPLOYMENT_TARGET=10.0 \
             CODE_SIGNING_ALLOWED=NO \

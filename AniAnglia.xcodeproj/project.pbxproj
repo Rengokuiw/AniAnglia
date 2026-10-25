@@ -3849,6 +3849,8 @@
 					"-I./AniAnglia/Libraries/aateam/libanixart/include",
 					"-I./AniAnglia/Libraries/aateam/libtorrentrepo/include",
 					"-I./AniAnglia/Libraries/aateam/libnetsess/include",
+					"-D_LIBCPP_DISABLE_AVAILABILITY",
+					"-Wno-unguarded-availability-new",
 				);
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = "-lz";
@@ -3911,6 +3913,8 @@
 					"-I./AniAnglia/Libraries/aateam/libanixart/include",
 					"-I./AniAnglia/Libraries/aateam/libtorrentrepo/include",
 					"-I./AniAnglia/Libraries/aateam/libnetsess/include",
+					"-D_LIBCPP_DISABLE_AVAILABILITY",
+					"-Wno-unguarded-availability-new",
 				);
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = "-lz";

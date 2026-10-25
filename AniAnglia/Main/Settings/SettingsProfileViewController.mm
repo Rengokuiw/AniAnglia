@@ -362,7 +362,8 @@ didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info {
     __block anixart::ProfilePreferenceStatus::Ptr edit_status;
     
     [_api_proxy performAsyncBlock:^BOOL(anixart::Api* api) {
-        NSURL* avatar_url = [NSURL URLWithString:@"ava.jpg" relativeToURL:orig_image_url.filePathURL];
+        NSString* temp_path = [NSTemporaryDirectory() stringByAppendingPathComponent:@"ava.jpg"];
+        NSURL* avatar_url = [NSURL fileURLWithPath:temp_path];
         [UIImageJPEGRepresentation(image, 1.0) writeToURL:avatar_url atomically:YES];
         std::filesystem::path path = TO_STDSTRING([avatar_url path]);
         
