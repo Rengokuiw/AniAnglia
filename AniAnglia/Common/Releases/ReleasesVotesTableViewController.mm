@@ -55,33 +55,33 @@
     
     _stars_view = [StarsVoteView new];
     
-    [self addSubview:_image_view];
-    [self addSubview:_title_label];
-    [self addSubview:_vote_time_label];
-    [self addSubview:_stars_view];
+    [self.contentView addSubview:_image_view];
+    [self.contentView addSubview:_title_label];
+    [self.contentView addSubview:_vote_time_label];
+    [self.contentView addSubview:_stars_view];
     
     _image_view.translatesAutoresizingMaskIntoConstraints = NO;
     _title_label.translatesAutoresizingMaskIntoConstraints = NO;
     _vote_time_label.translatesAutoresizingMaskIntoConstraints = NO;
     _stars_view.translatesAutoresizingMaskIntoConstraints = NO;
     [NSLayoutConstraint activateConstraints:@[
-        [_image_view.topAnchor constraintEqualToAnchor:self.layoutMarginsGuide.topAnchor],
-        [_image_view.leadingAnchor constraintEqualToAnchor:self.layoutMarginsGuide.leadingAnchor],
-        [_image_view.heightAnchor constraintEqualToAnchor:self.layoutMarginsGuide.heightAnchor],
-        [_image_view.widthAnchor constraintEqualToAnchor:self.layoutMarginsGuide.heightAnchor multiplier:(10. / 16)],
-        [_image_view.bottomAnchor constraintEqualToAnchor:self.layoutMarginsGuide.bottomAnchor],
+        [_image_view.topAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.topAnchor],
+        [_image_view.leadingAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.leadingAnchor],
+        [_image_view.heightAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.heightAnchor],
+        [_image_view.widthAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.heightAnchor multiplier:(10. / 16)],
+        [_image_view.bottomAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.bottomAnchor],
         
-        [_title_label.topAnchor constraintEqualToAnchor:self.layoutMarginsGuide.topAnchor],
+        [_title_label.topAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.topAnchor],
         [_title_label.leadingAnchor constraintEqualToAnchor:_image_view.trailingAnchor constant:8],
-        [_title_label.trailingAnchor constraintLessThanOrEqualToAnchor:self.layoutMarginsGuide.trailingAnchor],
+        [_title_label.trailingAnchor constraintLessThanOrEqualToAnchor:self.contentView.layoutMarginsGuide.trailingAnchor],
         
         [_stars_view.topAnchor constraintEqualToAnchor:_title_label.bottomAnchor constant:5],
         [_stars_view.leadingAnchor constraintEqualToAnchor:_title_label.leadingAnchor],
-        [_stars_view.trailingAnchor constraintLessThanOrEqualToAnchor:self.layoutMarginsGuide.centerXAnchor],
+        [_stars_view.trailingAnchor constraintLessThanOrEqualToAnchor:self.contentView.layoutMarginsGuide.centerXAnchor],
         
         [_vote_time_label.topAnchor constraintEqualToAnchor:_stars_view.topAnchor],
         [_vote_time_label.leadingAnchor constraintEqualToAnchor:_stars_view.trailingAnchor constant:5],
-        [_vote_time_label.trailingAnchor constraintLessThanOrEqualToAnchor:self.layoutMarginsGuide.trailingAnchor],
+        [_vote_time_label.trailingAnchor constraintLessThanOrEqualToAnchor:self.contentView.layoutMarginsGuide.trailingAnchor],
     ]];
 }
 -(void)setupLayout {

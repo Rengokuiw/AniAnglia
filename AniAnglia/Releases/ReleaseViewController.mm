@@ -227,7 +227,9 @@
     _vote_number_label.translatesAutoresizingMaskIntoConstraints = NO;
     _blank_indicator_view.translatesAutoresizingMaskIntoConstraints = NO;
     _filled_indicator_view.translatesAutoresizingMaskIntoConstraints = NO;
-    _filled_indicator_width = [_filled_indicator_view.widthAnchor constraintEqualToAnchor:_blank_indicator_view.widthAnchor multiplier:(_vote_total_count > 0 ? static_cast<double>(_vote_count) / _vote_total_count : 0)];
+    double initial_multiplier = (_vote_total_count > 0 ? static_cast<double>(_vote_count) / _vote_total_count : 0.00001);
+    initial_multiplier = std::max(0.00001, initial_multiplier);
+    _filled_indicator_width = [_filled_indicator_view.widthAnchor constraintEqualToAnchor:_blank_indicator_view.widthAnchor multiplier:initial_multiplier];
     [NSLayoutConstraint activateConstraints:@[
         [_vote_number_label.topAnchor constraintEqualToAnchor:self.layoutMarginsGuide.topAnchor],
         [_vote_number_label.leadingAnchor constraintEqualToAnchor:self.layoutMarginsGuide.leadingAnchor],
@@ -255,7 +257,9 @@
     _vote_count = vote_count;
     _vote_total_count = vote_total_count;
     _filled_indicator_width.active = NO;
-    _filled_indicator_width = [_filled_indicator_view.widthAnchor constraintEqualToAnchor:_blank_indicator_view.widthAnchor multiplier:(_vote_total_count > 0 ? static_cast<double>(_vote_count) / _vote_total_count : 0)];
+    double new_multiplier = (_vote_total_count > 0 ? static_cast<double>(_vote_count) / _vote_total_count : 0.00001);
+    new_multiplier = std::max(0.00001, new_multiplier);
+    _filled_indicator_width = [_filled_indicator_view.widthAnchor constraintEqualToAnchor:_blank_indicator_view.widthAnchor multiplier:new_multiplier];
     _filled_indicator_width.active = YES;
 }
 

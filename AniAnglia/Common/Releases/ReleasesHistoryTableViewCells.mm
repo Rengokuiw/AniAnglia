@@ -40,32 +40,32 @@
     _episode_label = [UILabel new];
     _time_label = [UILabel new];
     
-    [self addSubview:_image_view];
-    [self addSubview:_title_label];
-    [self addSubview:_episode_label];
-    [self addSubview:_time_label];
+    [self.contentView addSubview:_image_view];
+    [self.contentView addSubview:_title_label];
+    [self.contentView addSubview:_episode_label];
+    [self.contentView addSubview:_time_label];
     
     _image_view.translatesAutoresizingMaskIntoConstraints = NO;
     _title_label.translatesAutoresizingMaskIntoConstraints = NO;
     _episode_label.translatesAutoresizingMaskIntoConstraints = NO;
     _time_label.translatesAutoresizingMaskIntoConstraints = NO;
     [NSLayoutConstraint activateConstraints:@[
-        [_image_view.topAnchor constraintEqualToAnchor:self.layoutMarginsGuide.topAnchor],
-        [_image_view.leadingAnchor constraintEqualToAnchor:self.layoutMarginsGuide.leadingAnchor],
-        [_image_view.heightAnchor constraintEqualToAnchor:self.layoutMarginsGuide.heightAnchor],
-        [_image_view.widthAnchor constraintEqualToAnchor:self.layoutMarginsGuide.heightAnchor multiplier:(10. / 16)],
-        [_image_view.bottomAnchor constraintEqualToAnchor:self.layoutMarginsGuide.bottomAnchor],
+        [_image_view.topAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.topAnchor],
+        [_image_view.leadingAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.leadingAnchor],
+        [_image_view.heightAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.heightAnchor],
+        [_image_view.widthAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.heightAnchor multiplier:(10. / 16)],
+        [_image_view.bottomAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.bottomAnchor],
         
-        [_title_label.topAnchor constraintEqualToAnchor:self.layoutMarginsGuide.topAnchor],
+        [_title_label.topAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.topAnchor],
         [_title_label.leadingAnchor constraintEqualToAnchor:_image_view.trailingAnchor constant:5],
-        [_title_label.trailingAnchor constraintEqualToAnchor:self.layoutMarginsGuide.trailingAnchor],
+        [_title_label.trailingAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.trailingAnchor],
         
         [_episode_label.topAnchor constraintEqualToAnchor:_title_label.bottomAnchor constant:5],
         [_episode_label.leadingAnchor constraintEqualToAnchor:_title_label.leadingAnchor],
         
         [_time_label.topAnchor constraintEqualToAnchor:_title_label.bottomAnchor constant:5],
         [_time_label.leadingAnchor constraintEqualToAnchor:_episode_label.trailingAnchor constant:5],
-        [_time_label.trailingAnchor constraintLessThanOrEqualToAnchor:self.layoutMarginsGuide.trailingAnchor]
+        [_time_label.trailingAnchor constraintLessThanOrEqualToAnchor:self.contentView.layoutMarginsGuide.trailingAnchor]
     ]];
 }
 -(void)setupLayout {

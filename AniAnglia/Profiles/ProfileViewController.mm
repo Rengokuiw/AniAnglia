@@ -668,7 +668,8 @@ static const NSInteger PROFILE_WATCH_DYNAMICS_CELL_COUNT_LABEL_HEIGHT = 30;
     if (_indicator_height_constraint) {
         _indicator_height_constraint.active = NO;
     }
-    _indicator_height_constraint = [_indicator_view.heightAnchor constraintEqualToAnchor:_indicator_container_view.heightAnchor multiplier:(static_cast<double>(count) / MAX(total_count, 1))];
+    double mult = std::max(0.00001, static_cast<double>(count) / MAX(total_count, 1));
+    _indicator_height_constraint = [_indicator_view.heightAnchor constraintEqualToAnchor:_indicator_container_view.heightAnchor multiplier:mult];
     _indicator_height_constraint.active = YES;
     
     _count_label.text = [@(count) stringValue];

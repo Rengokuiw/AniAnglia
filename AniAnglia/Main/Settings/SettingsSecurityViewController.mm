@@ -31,7 +31,7 @@
     [self loadProfilePreferences];
 }
 -(void)setup {
-    _content_table_view = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStyleInsetGrouped];
+    _content_table_view = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStyleGrouped];
     [_content_table_view registerClass:TransitionTableViewCell.class forCellReuseIdentifier:[TransitionTableViewCell getIdentifier]];
     [_content_table_view registerClass:PlainTableViewCell.class forCellReuseIdentifier:[PlainTableViewCell getIdentifier]];
     [_content_table_view registerClass:MenuTableViewCell.class forCellReuseIdentifier:[MenuTableViewCell getIdentifier]];

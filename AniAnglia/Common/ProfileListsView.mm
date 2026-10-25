@@ -317,11 +317,15 @@
         [NSLayoutConstraint deactivateConstraints:_indicator_constraints];
     }
     if (total_lists_count != 0) {
+        double mult_watching = std::max(0.00001, static_cast<double>(_watching_count) / total_lists_count);
+        double mult_plan = std::max(0.00001, static_cast<double>(_plan_count) / total_lists_count);
+        double mult_watched = std::max(0.00001, static_cast<double>(_watched_count) / total_lists_count);
+        double mult_holdon = std::max(0.00001, static_cast<double>(_holdon_count) / total_lists_count);
         _indicator_constraints = @[
-            [_watching_indicator_view.widthAnchor constraintLessThanOrEqualToAnchor:_total_indicator_view.widthAnchor multiplier:(_watching_count / total_lists_count)],
-            [_plan_indicator_view.widthAnchor constraintLessThanOrEqualToAnchor:_total_indicator_view.widthAnchor multiplier:(_plan_count / total_lists_count)],
-            [_watched_indicator_view.widthAnchor constraintLessThanOrEqualToAnchor:_total_indicator_view.widthAnchor multiplier:(_watched_count / total_lists_count)],
-            [_holdon_indicator_view.widthAnchor constraintLessThanOrEqualToAnchor:_total_indicator_view.widthAnchor multiplier:(_holdon_count / total_lists_count)],
+            [_watching_indicator_view.widthAnchor constraintLessThanOrEqualToAnchor:_total_indicator_view.widthAnchor multiplier:mult_watching],
+            [_plan_indicator_view.widthAnchor constraintLessThanOrEqualToAnchor:_total_indicator_view.widthAnchor multiplier:mult_plan],
+            [_watched_indicator_view.widthAnchor constraintLessThanOrEqualToAnchor:_total_indicator_view.widthAnchor multiplier:mult_watched],
+            [_holdon_indicator_view.widthAnchor constraintLessThanOrEqualToAnchor:_total_indicator_view.widthAnchor multiplier:mult_holdon],
             [_dropped_indicator_view.trailingAnchor constraintEqualToAnchor:_total_indicator_view.trailingAnchor]
         ];
         [NSLayoutConstraint activateConstraints:_indicator_constraints];

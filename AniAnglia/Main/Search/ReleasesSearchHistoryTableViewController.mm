@@ -45,21 +45,21 @@
     _history_item_label.numberOfLines = 1;
     _history_item_label.textAlignment = NSTextAlignmentLeft;
     
-    [self addSubview:_magnifier_image_view];
-    [self addSubview:_history_item_label];
+    [self.contentView addSubview:_magnifier_image_view];
+    [self.contentView addSubview:_history_item_label];
     
     _magnifier_image_view.translatesAutoresizingMaskIntoConstraints = NO;
     _history_item_label.translatesAutoresizingMaskIntoConstraints = NO;
     [NSLayoutConstraint activateConstraints:@[
-        [_magnifier_image_view.centerYAnchor constraintEqualToAnchor:self.layoutMarginsGuide.centerYAnchor],
-        [_magnifier_image_view.leadingAnchor constraintEqualToAnchor:self.layoutMarginsGuide.leadingAnchor],
-        [_magnifier_image_view.heightAnchor constraintEqualToAnchor:self.layoutMarginsGuide.heightAnchor],
-        [_magnifier_image_view.widthAnchor constraintEqualToAnchor:self.layoutMarginsGuide.heightAnchor],
+        [_magnifier_image_view.centerYAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.centerYAnchor],
+        [_magnifier_image_view.leadingAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.leadingAnchor],
+        [_magnifier_image_view.heightAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.heightAnchor],
+        [_magnifier_image_view.widthAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.heightAnchor],
 
-        [_history_item_label.centerYAnchor constraintEqualToAnchor:self.layoutMarginsGuide.centerYAnchor],
+        [_history_item_label.centerYAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.centerYAnchor],
         [_history_item_label.leadingAnchor constraintEqualToAnchor:_magnifier_image_view.trailingAnchor constant:5],
-        [_history_item_label.trailingAnchor constraintEqualToAnchor:self.layoutMarginsGuide.trailingAnchor],
-        [_history_item_label.heightAnchor constraintEqualToAnchor:self.layoutMarginsGuide.heightAnchor],
+        [_history_item_label.trailingAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.trailingAnchor],
+        [_history_item_label.heightAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.heightAnchor],
     ]];
 }
 

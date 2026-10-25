@@ -57,12 +57,12 @@
     
     _category_label = [UILabel new];
     
-    [self addSubview:_image_view];
-    [self addSubview:_title_label];
-    [self addSubview:_year_label];
-    [self addSubview:_rating_label];
-    [self addSubview:_star_image_view];
-    [self addSubview:_category_label];
+    [self.contentView addSubview:_image_view];
+    [self.contentView addSubview:_title_label];
+    [self.contentView addSubview:_year_label];
+    [self.contentView addSubview:_rating_label];
+    [self.contentView addSubview:_star_image_view];
+    [self.contentView addSubview:_category_label];
     
     _image_view.translatesAutoresizingMaskIntoConstraints = NO;
     _title_label.translatesAutoresizingMaskIntoConstraints = NO;
@@ -71,14 +71,14 @@
     _star_image_view.translatesAutoresizingMaskIntoConstraints = NO;
     _category_label.translatesAutoresizingMaskIntoConstraints = NO;
     [NSLayoutConstraint activateConstraints:@[
-        [_image_view.topAnchor constraintEqualToAnchor:self.layoutMarginsGuide.topAnchor],
-        [_image_view.leadingAnchor constraintEqualToAnchor:self.layoutMarginsGuide.leadingAnchor],
-        [_image_view.heightAnchor constraintEqualToAnchor:self.layoutMarginsGuide.heightAnchor],
-        [_image_view.widthAnchor constraintEqualToAnchor:self.layoutMarginsGuide.heightAnchor multiplier:(10. / 16)],
+        [_image_view.topAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.topAnchor],
+        [_image_view.leadingAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.leadingAnchor],
+        [_image_view.heightAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.heightAnchor],
+        [_image_view.widthAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.heightAnchor multiplier:(10. / 16)],
         
-        [_title_label.topAnchor constraintEqualToAnchor:self.layoutMarginsGuide.topAnchor],
+        [_title_label.topAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.topAnchor],
         [_title_label.leadingAnchor constraintEqualToAnchor:_image_view.trailingAnchor constant:10],
-        [_title_label.trailingAnchor constraintEqualToAnchor:self.layoutMarginsGuide.trailingAnchor],
+        [_title_label.trailingAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.trailingAnchor],
         
         [_year_label.topAnchor constraintEqualToAnchor:_title_label.bottomAnchor constant:8],
         [_year_label.leadingAnchor constraintEqualToAnchor:_title_label.leadingAnchor],
@@ -93,7 +93,7 @@
 
         [_category_label.topAnchor constraintEqualToAnchor:_rating_label.topAnchor],
         [_category_label.leadingAnchor constraintEqualToAnchor:_star_image_view.trailingAnchor constant:8],
-        [_category_label.trailingAnchor constraintEqualToAnchor:self.layoutMarginsGuide.trailingAnchor]
+        [_category_label.trailingAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.trailingAnchor]
     ]];
 }
 

@@ -294,21 +294,21 @@
     _name_label = [UILabel new];
     _name_label.numberOfLines = 1;
     
-    [self addSubview:_checkbox_image_view];
-    [self addSubview:_name_label];
+    [self.contentView addSubview:_checkbox_image_view];
+    [self.contentView addSubview:_name_label];
     
     _checkbox_image_view.translatesAutoresizingMaskIntoConstraints = NO;
     _name_label.translatesAutoresizingMaskIntoConstraints = NO;
     [NSLayoutConstraint activateConstraints:@[
-        [_checkbox_image_view.centerYAnchor constraintEqualToAnchor:self.layoutMarginsGuide.centerYAnchor],
-        [_checkbox_image_view.trailingAnchor constraintEqualToAnchor:self.layoutMarginsGuide.trailingAnchor],
-        [_checkbox_image_view.widthAnchor constraintEqualToAnchor:self.layoutMarginsGuide.heightAnchor],
-        [_checkbox_image_view.heightAnchor constraintEqualToAnchor:self.layoutMarginsGuide.heightAnchor],
+        [_checkbox_image_view.centerYAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.centerYAnchor],
+        [_checkbox_image_view.trailingAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.trailingAnchor],
+        [_checkbox_image_view.widthAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.heightAnchor],
+        [_checkbox_image_view.heightAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.heightAnchor],
         
-        [_name_label.centerYAnchor constraintEqualToAnchor:self.layoutMarginsGuide.centerYAnchor],
-        [_name_label.leadingAnchor constraintEqualToAnchor:self.layoutMarginsGuide.leadingAnchor],
+        [_name_label.centerYAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.centerYAnchor],
+        [_name_label.leadingAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.leadingAnchor],
         [_name_label.trailingAnchor constraintEqualToAnchor:_checkbox_image_view.leadingAnchor constant:-5],
-        [_name_label.heightAnchor constraintEqualToAnchor:self.layoutMarginsGuide.heightAnchor]
+        [_name_label.heightAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.heightAnchor]
     ]];
 }
 

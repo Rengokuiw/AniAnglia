@@ -43,7 +43,7 @@
 -(void)setup {
     self.navigationItem.title = NSLocalizedString(@"app.settings.title", "");
     
-    _content_table_view = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStyleInsetGrouped];
+    _content_table_view = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStyleGrouped];
     [_content_table_view registerClass:TransitionTableViewCell.class forCellReuseIdentifier:[TransitionTableViewCell getIdentifier]];
     [_content_table_view registerClass:SwitchTableViewCell.class forCellReuseIdentifier:[SwitchTableViewCell getIdentifier]];
     _content_table_view.dataSource = self;

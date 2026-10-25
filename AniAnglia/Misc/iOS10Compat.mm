@@ -220,16 +220,27 @@ static UIBarButtonItem* Compat_UIBarButtonItem_initWithPrimaryAction(UIBarButton
     }
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"app.common.cancel", @"Отмена") style:UIAlertActionStyleCancel handler:nil]];
     
-    UIViewController *topVC = [UIApplication sharedApplication].keyWindow.rootViewController;
-    while (topVC.presentedViewController) {
-        topVC = topVC.presentedViewController;
+    UIWindow *window = [UIApplication sharedApplication].keyWindow;
+    if (!window) {
+        NSArray *windows = [UIApplication sharedApplication].windows;
+        if (windows.count > 0) window = windows.firstObject;
     }
-    if ([topVC isKindOfClass:[UINavigationController class]]) {
-        topVC = [(UINavigationController *)topVC topViewController];
+    UIViewController *topVC = window.rootViewController;
+    while (true) {
+        if (topVC.presentedViewController) {
+            topVC = topVC.presentedViewController;
+        } else if ([topVC isKindOfClass:[UINavigationController class]]) {
+            topVC = [(UINavigationController *)topVC topViewController];
+        } else if ([topVC isKindOfClass:[UITabBarController class]]) {
+            topVC = [(UITabBarController *)topVC selectedViewController];
+        } else {
+            break;
+        }
     }
     if (alert.popoverPresentationController) {
         alert.popoverPresentationController.sourceView = self;
         alert.popoverPresentationController.sourceRect = self.bounds;
+        alert.popoverPresentationController.permittedArrowDirections = UIPopoverArrowDirectionAny;
     }
     [topVC presentViewController:alert animated:YES completion:nil];
 }
@@ -566,6 +577,190 @@ static UIImage* RenderSFSymbol(NSString *name) {
             slash.lineWidth = 2.0;
             [slash stroke];
         }
+    } else if ([name hasPrefix:@"lock"]) {
+        UIBezierPath *body = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(5, 10, 14, 11) cornerRadius:3.0];
+        UIBezierPath *shackle = [UIBezierPath bezierPathWithArcCenter:CGPointMake(12, 10) radius:4.5 startAngle:M_PI endAngle:0 clockwise:YES];
+        shackle.lineWidth = 2.0;
+        [shackle stroke];
+        if ([name containsString:@"fill"]) {
+            [body fill];
+            [[UIColor blackColor] setFill];
+            [[UIBezierPath bezierPathWithOvalInRect:CGRectMake(11, 14, 2, 3)] fill];
+        } else {
+            body.lineWidth = 1.8;
+            [body stroke];
+            [[UIBezierPath bezierPathWithOvalInRect:CGRectMake(11, 14, 2, 3)] fill];
+        }
+    } else if ([name hasPrefix:@"bell"]) {
+        UIBezierPath *bell = [UIBezierPath bezierPath];
+        [bell moveToPoint:CGPointMake(12, 4)];
+        [bell addQuadCurveToPoint:CGPointMake(5, 16) controlPoint:CGPointMake(6, 9)];
+        [bell addLineToPoint:CGPointMake(19, 16)];
+        [bell addQuadCurveToPoint:CGPointMake(12, 4) controlPoint:CGPointMake(18, 9)];
+        [bell closePath];
+        if ([name containsString:@"fill"]) {
+            [bell fill];
+        } else {
+            bell.lineWidth = 1.8;
+            [bell stroke];
+        }
+        UIBezierPath *clapper = [UIBezierPath bezierPathWithArcCenter:CGPointMake(12, 16) radius:2.5 startAngle:0 endAngle:M_PI clockwise:YES];
+        [clapper fill];
+    } else if ([name hasPrefix:@"externaldrive"]) {
+        UIBezierPath *drive = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(4, 7, 16, 10) cornerRadius:2.5];
+        if ([name containsString:@"fill"]) {
+            [drive fill];
+            [[UIColor blackColor] setFill];
+            [[UIBezierPath bezierPathWithOvalInRect:CGRectMake(16, 12, 2, 2)] fill];
+        } else {
+            drive.lineWidth = 1.8;
+            [drive stroke];
+            [[UIBezierPath bezierPathWithOvalInRect:CGRectMake(16, 12, 2, 2)] fill];
+        }
+    } else if ([name hasPrefix:@"questionmark"]) {
+        UIBezierPath *q = [UIBezierPath bezierPath];
+        [q moveToPoint:CGPointMake(8, 9)];
+        [q addArcWithCenter:CGPointMake(12, 9) radius:4 startAngle:M_PI endAngle:0 clockwise:YES];
+        [q addQuadCurveToPoint:CGPointMake(12, 16) controlPoint:CGPointMake(16, 13)];
+        q.lineWidth = 2.2;
+        q.lineCapStyle = kCGLineCapRound;
+        [q stroke];
+        [[UIBezierPath bezierPathWithOvalInRect:CGRectMake(10.75, 19, 2.5, 2.5)] fill];
+    } else if ([name hasPrefix:@"shield"]) {
+        UIBezierPath *shield = [UIBezierPath bezierPath];
+        [shield moveToPoint:CGPointMake(12, 4)];
+        [shield addLineToPoint:CGPointMake(19, 6)];
+        [shield addQuadCurveToPoint:CGPointMake(12, 21) controlPoint:CGPointMake(19, 15)];
+        [shield addQuadCurveToPoint:CGPointMake(5, 6) controlPoint:CGPointMake(5, 15)];
+        [shield closePath];
+        if ([name containsString:@"fill"]) {
+            [shield fill];
+        } else {
+            shield.lineWidth = 1.8;
+            [shield stroke];
+        }
+    } else if ([name hasPrefix:@"calendar"]) {
+        UIBezierPath *cal = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(4, 5, 16, 15) cornerRadius:3.0];
+        cal.lineWidth = 1.8;
+        [cal stroke];
+        UIBezierPath *line = [UIBezierPath bezierPath];
+        [line moveToPoint:CGPointMake(4, 10)]; [line addLineToPoint:CGPointMake(20, 10)];
+        line.lineWidth = 1.5;
+        [line stroke];
+        [[UIBezierPath bezierPathWithRect:CGRectMake(7, 3, 2, 3)] fill];
+        [[UIBezierPath bezierPathWithRect:CGRectMake(15, 3, 2, 3)] fill];
+    } else if ([name hasPrefix:@"rectangle.stack"]) {
+        UIBezierPath *r1 = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(7, 4, 13, 9) cornerRadius:2.0];
+        r1.lineWidth = 1.5;
+        [r1 stroke];
+        UIBezierPath *r2 = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(4, 8, 13, 11) cornerRadius:2.0];
+        r2.lineWidth = 1.8;
+        [[UIColor blackColor] setFill];
+        [r2 fill];
+        [[UIColor whiteColor] setFill];
+        [r2 stroke];
+    } else if ([name hasPrefix:@"person.3"]) {
+        [[UIBezierPath bezierPathWithOvalInRect:CGRectMake(4, 7, 5, 5)] fill];
+        UIBezierPath *b1 = [UIBezierPath bezierPath];
+        [b1 moveToPoint:CGPointMake(2, 17)]; [b1 addQuadCurveToPoint:CGPointMake(11, 17) controlPoint:CGPointMake(6.5, 13)];
+        [b1 closePath]; [b1 fill];
+        [[UIBezierPath bezierPathWithOvalInRect:CGRectMake(15, 7, 5, 5)] fill];
+        UIBezierPath *b3 = [UIBezierPath bezierPath];
+        [b3 moveToPoint:CGPointMake(13, 17)]; [b3 addQuadCurveToPoint:CGPointMake(22, 17) controlPoint:CGPointMake(17.5, 13)];
+        [b3 closePath]; [b3 fill];
+        [[UIBezierPath bezierPathWithOvalInRect:CGRectMake(9, 5, 6, 6)] fill];
+        UIBezierPath *b2 = [UIBezierPath bezierPath];
+        [b2 moveToPoint:CGPointMake(6, 19)]; [b2 addQuadCurveToPoint:CGPointMake(18, 19) controlPoint:CGPointMake(12, 13)];
+        [b2 closePath]; [b2 fill];
+    } else if ([name hasPrefix:@"a.circle"]) {
+        UIBezierPath *circle = [UIBezierPath bezierPathWithOvalInRect:CGRectMake(3, 3, 18, 18)];
+        circle.lineWidth = 1.8;
+        [circle stroke];
+        UIBezierPath *a = [UIBezierPath bezierPath];
+        [a moveToPoint:CGPointMake(7.5, 17)]; [a addLineToPoint:CGPointMake(12, 7)]; [a addLineToPoint:CGPointMake(16.5, 17)];
+        [a moveToPoint:CGPointMake(9, 14)]; [a addLineToPoint:CGPointMake(15, 14)];
+        a.lineWidth = 1.8;
+        a.lineCapStyle = kCGLineCapRound;
+        [a stroke];
+    } else if ([name hasPrefix:@"bookmark"]) {
+        UIBezierPath *bm = [UIBezierPath bezierPath];
+        [bm moveToPoint:CGPointMake(6, 4)];
+        [bm addLineToPoint:CGPointMake(18, 4)];
+        [bm addLineToPoint:CGPointMake(18, 20)];
+        [bm addLineToPoint:CGPointMake(12, 16)];
+        [bm addLineToPoint:CGPointMake(6, 20)];
+        [bm closePath];
+        if ([name containsString:@"fill"]) {
+            [bm fill];
+        } else {
+            bm.lineWidth = 1.8;
+            [bm stroke];
+        }
+        if ([name containsString:@"slash"]) {
+            UIBezierPath *slash = [UIBezierPath bezierPath];
+            [slash moveToPoint:CGPointMake(4, 21)];
+            [slash addLineToPoint:CGPointMake(20, 3)];
+            slash.lineWidth = 2.0;
+            [slash stroke];
+        }
+    } else if ([name hasPrefix:@"dot.square"]) {
+        UIBezierPath *sq = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(4, 4, 16, 16) cornerRadius:3.0];
+        sq.lineWidth = 1.8;
+        [sq stroke];
+        [[UIBezierPath bezierPathWithOvalInRect:CGRectMake(9.5, 9.5, 5, 5)] fill];
+    } else if ([name hasPrefix:@"square"]) {
+        UIBezierPath *sq = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(4, 4, 16, 16) cornerRadius:3.0];
+        sq.lineWidth = 1.8;
+        [sq stroke];
+        if ([name containsString:@"slash"]) {
+            UIBezierPath *slash = [UIBezierPath bezierPath];
+            [slash moveToPoint:CGPointMake(4, 20)];
+            [slash addLineToPoint:CGPointMake(20, 4)];
+            slash.lineWidth = 1.8;
+            [slash stroke];
+        }
+    } else if ([name hasPrefix:@"arrow.up"]) {
+        UIBezierPath *arrow = [UIBezierPath bezierPath];
+        [arrow moveToPoint:CGPointMake(12, 19)];
+        [arrow addLineToPoint:CGPointMake(12, 5)];
+        [arrow moveToPoint:CGPointMake(6, 11)];
+        [arrow addLineToPoint:CGPointMake(12, 5)];
+        [arrow addLineToPoint:CGPointMake(18, 11)];
+        arrow.lineWidth = 2.2;
+        arrow.lineCapStyle = kCGLineCapRound;
+        arrow.lineJoinStyle = kCGLineJoinRound;
+        [arrow stroke];
+    } else if ([name hasPrefix:@"doc.on.doc"]) {
+        UIBezierPath *back = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(8, 3, 12, 14) cornerRadius:2.0];
+        back.lineWidth = 1.5;
+        [back stroke];
+        UIBezierPath *front = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(4, 7, 12, 14) cornerRadius:2.0];
+        front.lineWidth = 1.8;
+        [[UIColor blackColor] setFill];
+        [front fill];
+        [[UIColor whiteColor] setFill];
+        [front stroke];
+    } else if ([name hasPrefix:@"pencil"]) {
+        UIBezierPath *p = [UIBezierPath bezierPath];
+        [p moveToPoint:CGPointMake(5, 19)];
+        [p addLineToPoint:CGPointMake(9, 19)];
+        [p addLineToPoint:CGPointMake(19, 9)];
+        [p addLineToPoint:CGPointMake(15, 5)];
+        [p addLineToPoint:CGPointMake(5, 15)];
+        [p closePath];
+        p.lineWidth = 1.8;
+        p.lineJoinStyle = kCGLineJoinRound;
+        [p stroke];
+    } else if ([name hasPrefix:@"megaphone"]) {
+        UIBezierPath *m = [UIBezierPath bezierPath];
+        [m moveToPoint:CGPointMake(8, 10)];
+        [m addLineToPoint:CGPointMake(17, 6)];
+        [m addLineToPoint:CGPointMake(17, 18)];
+        [m addLineToPoint:CGPointMake(8, 14)];
+        [m closePath];
+        m.lineWidth = 1.8;
+        [m stroke];
+        [[UIBezierPath bezierPathWithRoundedRect:CGRectMake(5, 10, 3, 4) cornerRadius:1.0] stroke];
     } else {
         // Universal fallback: clean rounded glyph
         UIBezierPath *rect = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(4, 4, 16, 16) cornerRadius:4.0];
@@ -612,6 +807,32 @@ static UIImage* Compat_systemImageNamed(id self, SEL _cmd, NSString *name) {
     return Compat_systemImageNamed([UIImage class], @selector(systemImageNamed:), name);
 }
 @end
+
+#pragma mark - AutoLayout & TableView Swizzling for iOS 10
+
+static NSLayoutConstraint* (*s_orig_constraintWithItem)(id, SEL, id, NSLayoutAttribute, NSLayoutRelation, id, NSLayoutAttribute, CGFloat, CGFloat) = NULL;
+
+static NSLayoutConstraint* Compat_constraintWithItem(id self, SEL _cmd, id view1, NSLayoutAttribute attr1, NSLayoutRelation relation, id view2, NSLayoutAttribute attr2, CGFloat multiplier, CGFloat c) {
+    if (multiplier <= 0.0) {
+        multiplier = 0.00001; // AutoLayout throws NSInvalidArgumentException if multiplier <= 0
+    }
+    if (s_orig_constraintWithItem) {
+        return s_orig_constraintWithItem(self, _cmd, view1, attr1, relation, view2, attr2, multiplier, c);
+    }
+    return nil;
+}
+
+static id (*s_orig_UITableView_initWithFrame_style)(id, SEL, CGRect, NSInteger) = NULL;
+
+static id Compat_UITableView_initWithFrame_style(UITableView *self, SEL _cmd, CGRect frame, NSInteger style) {
+    if (style > 1) { // Fallback UITableViewStyleInsetGrouped (2) to UITableViewStyleGrouped (1) on iOS < 13
+        style = UITableViewStyleGrouped;
+    }
+    if (s_orig_UITableView_initWithFrame_style) {
+        return s_orig_UITableView_initWithFrame_style(self, _cmd, frame, style);
+    }
+    return self;
+}
 
 #pragma mark - Initializer / Swizzler
 
@@ -732,6 +953,20 @@ static UIImage* Compat_systemImageNamed(id self, SEL _cmd, NSString *name) {
     Class uiImageMeta = object_getClass([UIImage class]);
     if (![UIImage respondsToSelector:@selector(systemImageNamed:)]) {
         class_addMethod(uiImageMeta, @selector(systemImageNamed:), (IMP)Compat_systemImageNamed, "@@:@");
+    }
+    
+    // 10. Swizzle NSLayoutConstraint constraintWithItem:... to prevent AutoLayout multiplier <= 0 crash
+    Method origConstraintMethod = class_getClassMethod([NSLayoutConstraint class], @selector(constraintWithItem:attribute:relatedBy:toItem:attribute:multiplier:constant:));
+    if (origConstraintMethod) {
+        s_orig_constraintWithItem = (NSLayoutConstraint* (*)(id, SEL, id, NSLayoutAttribute, NSLayoutRelation, id, NSLayoutAttribute, CGFloat, CGFloat))method_getImplementation(origConstraintMethod);
+        method_setImplementation(origConstraintMethod, (IMP)Compat_constraintWithItem);
+    }
+    
+    // 11. Swizzle UITableView initWithFrame:style: to fallback style 2 (InsetGrouped) on iOS < 13
+    Method origTableInitMethod = class_getInstanceMethod([UITableView class], @selector(initWithFrame:style:));
+    if (origTableInitMethod) {
+        s_orig_UITableView_initWithFrame_style = (id (*)(id, SEL, CGRect, NSInteger))method_getImplementation(origTableInitMethod);
+        method_setImplementation(origTableInitMethod, (IMP)Compat_UITableView_initWithFrame_style);
     }
 }
 

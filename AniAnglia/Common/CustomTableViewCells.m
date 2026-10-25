@@ -136,37 +136,36 @@
     _content_label = [UILabel new];
     _arrow_image_view = [[UIImageView alloc] initWithImage:[UIImage systemImageNamed:@"chevron.right"]];
     
-    [self addSubview:_image_view];
-    [self addSubview:_name_label];
-    [self addSubview:_content_label];
-    [self addSubview:_arrow_image_view];
+    [self.contentView addSubview:_image_view];
+    [self.contentView addSubview:_name_label];
+    [self.contentView addSubview:_content_label];
+    [self.contentView addSubview:_arrow_image_view];
     
     _image_view.translatesAutoresizingMaskIntoConstraints = NO;
     _name_label.translatesAutoresizingMaskIntoConstraints = NO;
     _content_label.translatesAutoresizingMaskIntoConstraints = NO;
     _arrow_image_view.translatesAutoresizingMaskIntoConstraints = NO;
-    _image_view_width_constraint = [_image_view.widthAnchor constraintEqualToAnchor:self.layoutMarginsGuide.heightAnchor];
+    _image_view_width_constraint = [_image_view.widthAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.heightAnchor];
     [NSLayoutConstraint activateConstraints:@[
-        [_image_view.topAnchor constraintEqualToAnchor:self.layoutMarginsGuide.topAnchor],
-        [_image_view.leadingAnchor constraintEqualToAnchor:self.layoutMarginsGuide.leadingAnchor],
-        [_image_view.bottomAnchor constraintEqualToAnchor:self.layoutMarginsGuide.bottomAnchor],
-        [_image_view.heightAnchor constraintEqualToAnchor:self.layoutMarginsGuide.heightAnchor],
+        [_image_view.topAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.topAnchor],
+        [_image_view.leadingAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.leadingAnchor],
+        [_image_view.bottomAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.bottomAnchor],
+        [_image_view.heightAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.heightAnchor],
         _image_view_width_constraint,
         
-        [_name_label.topAnchor constraintEqualToAnchor:self.layoutMarginsGuide.topAnchor],
+        [_name_label.topAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.topAnchor],
         [_name_label.leadingAnchor constraintEqualToAnchor:_image_view.trailingAnchor constant:10],
-        [_name_label.bottomAnchor constraintEqualToAnchor:self.layoutMarginsGuide.bottomAnchor],
+        [_name_label.bottomAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.bottomAnchor],
         
-        [_content_label.topAnchor constraintEqualToAnchor:self.layoutMarginsGuide.topAnchor],
-        [_content_label.leadingAnchor constraintGreaterThanOrEqualToAnchor:_name_label.trailingAnchor],
-        [_content_label.bottomAnchor constraintEqualToAnchor:self.layoutMarginsGuide.bottomAnchor],
+        [_content_label.topAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.topAnchor],
+        [_content_label.leadingAnchor constraintGreaterThanOrEqualToAnchor:_name_label.trailingAnchor constant:8],
+        [_content_label.bottomAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.bottomAnchor],
         
-        [_arrow_image_view.topAnchor constraintGreaterThanOrEqualToAnchor:self.layoutMarginsGuide.topAnchor],
-        [_arrow_image_view.leadingAnchor constraintGreaterThanOrEqualToAnchor:_content_label.trailingAnchor],
-        [_arrow_image_view.trailingAnchor constraintEqualToAnchor:self.layoutMarginsGuide.trailingAnchor],
-        [_arrow_image_view.heightAnchor constraintEqualToAnchor:self.layoutMarginsGuide.heightAnchor multiplier:0.7],
-        [_arrow_image_view.centerYAnchor constraintEqualToAnchor:self.layoutMarginsGuide.centerYAnchor],
-        [_arrow_image_view.bottomAnchor constraintLessThanOrEqualToAnchor:self.layoutMarginsGuide.bottomAnchor],
+        [_arrow_image_view.leadingAnchor constraintGreaterThanOrEqualToAnchor:_content_label.trailingAnchor constant:8],
+        [_arrow_image_view.trailingAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.trailingAnchor],
+        [_arrow_image_view.centerYAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.centerYAnchor],
+        [_arrow_image_view.widthAnchor constraintEqualToConstant:12],
+        [_arrow_image_view.heightAnchor constraintEqualToConstant:18],
     ]];
 }
 -(void)setupLayout {
@@ -207,15 +206,15 @@
 -(void)setup {
     _content_label = [UILabel new];
     
-    [self addSubview:_content_label];
+    [self.contentView addSubview:_content_label];
     
     _content_label.translatesAutoresizingMaskIntoConstraints = NO;
     [NSLayoutConstraint activateConstraints:@[
-        [_content_label.topAnchor constraintEqualToAnchor:self.layoutMarginsGuide.topAnchor],
-        [_content_label.leadingAnchor constraintGreaterThanOrEqualToAnchor:self.layoutMarginsGuide.leadingAnchor],
-        [_content_label.trailingAnchor constraintLessThanOrEqualToAnchor:self.layoutMarginsGuide.trailingAnchor],
-        [_content_label.centerXAnchor constraintEqualToAnchor:self.layoutMarginsGuide.centerXAnchor],
-        [_content_label.bottomAnchor constraintEqualToAnchor:self.layoutMarginsGuide.bottomAnchor],
+        [_content_label.topAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.topAnchor],
+        [_content_label.leadingAnchor constraintGreaterThanOrEqualToAnchor:self.contentView.layoutMarginsGuide.leadingAnchor],
+        [_content_label.trailingAnchor constraintLessThanOrEqualToAnchor:self.contentView.layoutMarginsGuide.trailingAnchor],
+        [_content_label.centerXAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.centerXAnchor],
+        [_content_label.bottomAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.bottomAnchor],
     ]];
 }
 -(void)setupLayout {
@@ -320,10 +319,10 @@
     _image_view = [[UIImageView alloc] initWithImage:[UIImage systemImageNamed:@"chevron.down"]];
     
     
-    [self.contentView addSubview:_button];
     [self.contentView addSubview:_title_label];
     [self.contentView addSubview:_content_label];
     [self.contentView addSubview:_image_view];
+    [self.contentView addSubview:_button];
     
     _button.translatesAutoresizingMaskIntoConstraints = NO;
     _title_label.translatesAutoresizingMaskIntoConstraints = NO;

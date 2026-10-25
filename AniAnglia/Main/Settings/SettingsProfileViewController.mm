@@ -66,7 +66,7 @@
     self.navigationItem.rightBarButtonItem = _save_bar_button;
     _save_bar_button.enabled = NO;
     
-    _content_table_view = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStyleInsetGrouped];
+    _content_table_view = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStyleGrouped];
     [_content_table_view registerClass:TextFieldTableViewCell.class forCellReuseIdentifier:[TextFieldTableViewCell getIdentifier]];
     [_content_table_view registerClass:TransitionTableViewCell.class forCellReuseIdentifier:[TransitionTableViewCell getIdentifier]];
     [_content_table_view registerClass:PlainTableViewCell.class forCellReuseIdentifier:[PlainTableViewCell getIdentifier]];
@@ -74,37 +74,31 @@
     _content_table_view.delegate = self;
     
     _avatar_button = [UIButton new];
-    _avatar_button.layoutMargins = UIEdgeInsetsMake(0, 0, 10, 0);
+    _avatar_button.frame = CGRectMake(0, 0, self.view.bounds.size.width > 0 ? self.view.bounds.size.width : 320, 140);
+    _avatar_button.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     [_avatar_button addTarget:self action:@selector(onAvatarPressed) forControlEvents:UIControlEventTouchUpInside];
     
     _avatar_image_view = [LoadableImageView new];
     _avatar_image_view.layer.cornerRadius = 60;
     _avatar_image_view.clipsToBounds = YES;
     
+    [_avatar_button addSubview:_avatar_image_view];
+    _avatar_image_view.translatesAutoresizingMaskIntoConstraints = NO;
+    [NSLayoutConstraint activateConstraints:@[
+        [_avatar_image_view.centerXAnchor constraintEqualToAnchor:_avatar_button.centerXAnchor],
+        [_avatar_image_view.centerYAnchor constraintEqualToAnchor:_avatar_button.centerYAnchor],
+        [_avatar_image_view.heightAnchor constraintEqualToConstant:120],
+        [_avatar_image_view.widthAnchor constraintEqualToConstant:120]
+    ]];
     _content_table_view.tableHeaderView = _avatar_button;
     
     [self.view addSubview:_content_table_view];
-    [_avatar_button addSubview:_avatar_image_view];
-    
     _content_table_view.translatesAutoresizingMaskIntoConstraints = NO;
-    _avatar_image_view.translatesAutoresizingMaskIntoConstraints = NO;
-    _avatar_button.translatesAutoresizingMaskIntoConstraints = NO;
     [NSLayoutConstraint activateConstraints:@[
         [_content_table_view.topAnchor constraintEqualToAnchor:self.view.topAnchor],
         [_content_table_view.leadingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.leadingAnchor],
         [_content_table_view.trailingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor],
         [_content_table_view.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
-        
-        [_avatar_button.leadingAnchor constraintGreaterThanOrEqualToAnchor:self.view.safeAreaLayoutGuide.leadingAnchor],
-        [_avatar_button.trailingAnchor constraintLessThanOrEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor],
-        [_avatar_button.centerXAnchor constraintLessThanOrEqualToAnchor:self.view.safeAreaLayoutGuide.centerXAnchor],
-        
-        [_avatar_image_view.topAnchor constraintEqualToAnchor:_avatar_button.layoutMarginsGuide.topAnchor],
-        [_avatar_image_view.leadingAnchor constraintEqualToAnchor:_avatar_button.layoutMarginsGuide.leadingAnchor],
-        [_avatar_image_view.trailingAnchor constraintEqualToAnchor:_avatar_button.layoutMarginsGuide.trailingAnchor],
-        [_avatar_image_view.bottomAnchor constraintEqualToAnchor:_avatar_button.layoutMarginsGuide.bottomAnchor],
-        [_avatar_image_view.heightAnchor constraintEqualToConstant:120],
-        [_avatar_image_view.widthAnchor constraintEqualToConstant:120]
     ]];
     
     [self reloadAvatar];
@@ -120,8 +114,10 @@
     _avatar_image_view.backgroundColor = [AppColorProvider foregroundColor1];
 }
 -(void)reloadAvatar {
-    NSURL* image_url = [NSURL URLWithString:TO_NSSTRING(_profile->avatar_url)];
-    [_avatar_image_view tryLoadImageWithURL:image_url];
+    if (_profile) {
+        NSURL* image_url = [NSURL URLWithString:TO_NSSTRING(_profile->avatar_url)];
+        [_avatar_image_view tryLoadImageWithURL:image_url];
+    }
 }
 
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)table_view {
