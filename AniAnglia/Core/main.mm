@@ -14,5 +14,15 @@ int main(int argc, char * argv[]) {
         // Setup code that might create autoreleased objects goes here.
         appDelegateClassName = NSStringFromClass([AppDelegate class]);
     }
-    return UIApplicationMain(argc, argv, nil, appDelegateClassName);
+    @try {
+        return UIApplicationMain(argc, argv, nil, appDelegateClassName);
+    } @catch (NSException *exception) {
+        NSString *crashInfo = [NSString stringWithFormat:@"Exception: %@\nReason: %@\nStack:\n%@",
+                               exception.name,
+                               exception.reason,
+                               [exception.callStackSymbols componentsJoinedByString:@"\n"]];
+        [[NSUserDefaults standardUserDefaults] setObject:crashInfo forKey:@"AniAngliaLastCrash"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+        @throw;
+    }
 }

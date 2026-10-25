@@ -1080,6 +1080,7 @@
 }
 
 -(void)refresh {
+    if (!_release) return;
     self.navigationItem.title = TO_NSSTRING(_release->title_ru);
     
     _title_label.text = TO_NSSTRING(_release->title_ru);
@@ -1091,18 +1092,12 @@
     [self updateBookmarkButton];
     
     NSString* note = TO_NSSTRING(_release->note);
-//    NSData* note_data = [NSData dataWithBytes:_release->note.c_str() length:_release->note.size()];
-//    NSData* note_data = [note dataUsingEncoding:NSUTF16StringEncoding];
-//    _note_label.attributedText = [[NSAttributedString alloc] initWithData:note_data options:@{
-//        NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType
-//    } documentAttributes:nil error:nil];
-    
     _note_label.text = [HTMLStyleFormatter stringFromString:note];
     
     NSString* ep_count = _release->episodes_total != 0 ? [@(_release->episodes_total) stringValue] : @"?";
     
     NSString* prod_info_content = [NSString stringWithFormat:@"%@, %@ %@ %@", TO_NSSTRING(_release->country), [ReleasesPageableDataProvider getSeasonNameFor:_release->season], TO_NSSTRING(_release->year), NSLocalizedString(@"app.release.general.year.end", "")];
-    NSString* ep_info_content = [NSString stringWithFormat:@"%d/%@ %@ %ld %@", _release->episodes_released, ep_count, NSLocalizedString(@"app.release.general.ep_info.separator", ""), _release->duration.count(), NSLocalizedString(@"app.release.general.ep_info.end", "")];
+    NSString* ep_info_content = [NSString stringWithFormat:@"%d/%@ %@ %ld %@", _release->episodes_released, ep_count, NSLocalizedString(@"app.release.general.ep_info.separator", ""), (long)_release->duration.count(), NSLocalizedString(@"app.release.general.ep_info.end", "")];
     NSString* status_info_content = [NSString stringWithFormat:@"%@, %@%@", [ReleasesPageableDataProvider getCategoryNameFor:_release->category], [ReleasesPageableDataProvider getStatusNameFor:_release->status], [self makeAiredOnString]];
     NSString* author_info_content = [NSString stringWithFormat:@"%@ %@", NSLocalizedString(@"app.release.general.author_info.studio", ""), TO_NSSTRING(_release->studio)];
     if (!_release->author.empty()) {
@@ -1211,23 +1206,33 @@
 }
 
 -(void)onReleaseLoaded:(BOOL)errored {
-    [_loading_view endLoadingWithErrored:errored];
-    if (_refresh_control.refreshing) {
-        [_refresh_control endRefreshing];
+    @try {
+        [_loading_view endLoadingWithErrored:errored];
+        if (_refresh_control.refreshing) {
+            [_refresh_control endRefreshing];
+        }
+        
+        _scroll_view.hidden = errored;
+        if (errored || !_release) {
+            _scroll_view.refreshControl = nil;
+            return;
+        }
+        
+        _scroll_view.refreshControl = _refresh_control;
+        if (!_is_ui_inited) {
+            [self setup];
+            [self setupLayout];
+        }
+        [self refresh];
+    } @catch (NSException *e) {
+        NSLog(@"Exception in onReleaseLoaded: %@: %@", e.name, e.reason);
+        NSString *crashInfo = [NSString stringWithFormat:@"Exception: %@\nReason: %@\nStack:\n%@",
+                               e.name, e.reason, [e.callStackSymbols componentsJoinedByString:@"\n"]];
+        [[NSUserDefaults standardUserDefaults] setObject:crashInfo forKey:@"AniAngliaLastCrash"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+        [_loading_view endLoadingWithErrored:YES];
+        _scroll_view.hidden = YES;
     }
-    
-    _scroll_view.hidden = errored;
-    if (errored) {
-        _scroll_view.refreshControl = nil;
-        return;
-    }
-    
-    _scroll_view.refreshControl = _refresh_control;
-    if (!_is_ui_inited) {
-        [self setup];
-        [self setupLayout];
-    }
-    [self refresh];
 }
 
 -(void)onAddListMenuItemSelected:(anixart::Profile::ListStatus)status {

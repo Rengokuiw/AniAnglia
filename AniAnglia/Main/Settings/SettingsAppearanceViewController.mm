@@ -128,11 +128,12 @@
 }
 
 -(void)tableView:(UITableView *)table_view didSelectRowAtIndexPath:(NSIndexPath *)index_path {
-    NSInteger section = index_path.section;
-    NSInteger row = index_path.row;
     [table_view deselectRowAtIndexPath:index_path animated:YES];
-    
-    // TODO
+    UITableViewCell *cell = [table_view cellForRowAtIndexPath:index_path];
+    if ([cell respondsToSelector:@selector(button)]) {
+        UIButton *btn = [cell valueForKey:@"button"];
+        [btn sendActionsForControlEvents:UIControlEventTouchUpInside];
+    }
 }
 
 -(void)onThemeMenuItemSelected:(app_settings::Appearance::Theme)theme {

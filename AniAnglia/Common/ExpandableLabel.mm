@@ -12,6 +12,7 @@
 @interface ExpandableLabel ()
 @property(nonatomic, retain) UILabel* text_label;
 @property(nonatomic, retain) UIButton* show_all_button;
+@property(nonatomic, retain) NSLayoutConstraint* text_bottom_constraint;
 @property(nonatomic) NSInteger number_of_lines;
 @property(nonatomic) BOOL show_all_button_pressed;
 
@@ -40,11 +41,13 @@
     [self addSubview:_text_label];
     
     _text_label.translatesAutoresizingMaskIntoConstraints = NO;
+    _text_bottom_constraint = [_text_label.bottomAnchor constraintEqualToAnchor:self.layoutMarginsGuide.bottomAnchor];
+    _text_bottom_constraint.priority = UILayoutPriorityDefaultLow;
     [NSLayoutConstraint activateConstraints:@[
         [_text_label.topAnchor constraintEqualToAnchor:self.layoutMarginsGuide.topAnchor],
         [_text_label.leadingAnchor constraintEqualToAnchor:self.layoutMarginsGuide.leadingAnchor],
         [_text_label.trailingAnchor constraintEqualToAnchor:self.layoutMarginsGuide.trailingAnchor],
-        [_text_label.bottomAnchor constraintLessThanOrEqualToAnchor:self.layoutMarginsGuide.bottomAnchor]
+        _text_bottom_constraint
     ]];
 }
 -(void)setupLayout {

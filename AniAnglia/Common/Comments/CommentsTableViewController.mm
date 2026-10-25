@@ -542,12 +542,15 @@
     CommentsTableViewCell* cell = [table_view dequeueReusableCellWithIdentifier:[CommentsTableViewCell getIdentifier] forIndexPath:index_path];
     NSInteger index = index_path.row;
     anixart::Comment::Ptr comment = [_data_provider getCommentAtIndex:index];
-    NSURL* avatar_url = [NSURL URLWithString:TO_NSSTRING(comment->author->avatar_url)];
+    if (!comment) {
+        return cell;
+    }
+    NSURL* avatar_url = (comment->author ? [NSURL URLWithString:TO_NSSTRING(comment->author->avatar_url)] : nil);
     
     cell.selectionStyle = _enable_origin_reference ? UITableViewCellSelectionStyleDefault : UITableViewCellSelectionStyleNone;
     cell.delegate = self;
     [cell setAvatarUrl:avatar_url];
-    [cell setUsername:TO_NSSTRING(comment->author->username)];
+    [cell setUsername:(comment->author ? TO_NSSTRING(comment->author->username) : @"")];
     [cell setPublishDate:[NSDateFormatter localizedStringFromDate:anix_time_point_to_nsdate(comment->date) dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle]];
     [cell setContent:TO_NSSTRING(comment->message)];
     [cell setRepliesCount:comment->reply_count];

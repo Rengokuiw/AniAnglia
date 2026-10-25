@@ -56,6 +56,12 @@
     
     [self preSetupLayout];
     [_shared_running_data asyncGetMyProfile:^(anixart::Profile::Ptr profile) {
+        if (!profile) {
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Ошибка" message:@"Не удалось загрузить данные профиля." preferredStyle:UIAlertControllerStyleAlert];
+            [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleCancel handler:nil]];
+            [self presentViewController:alert animated:YES completion:nil];
+            return;
+        }
         self->_profile = profile;
         [self setup];
         [self setupLayout];
@@ -167,6 +173,9 @@
     return UITableViewAutomaticDimension;
 }
 -(UITableViewCell *)tableView:(UITableView *)table_view cellForRowAtIndexPath:(NSIndexPath *)index_path {
+    if (!_profile) {
+        return [UITableViewCell new];
+    }
     NSInteger section = index_path.section;
     NSInteger row = index_path.row;
     if (section == 0) {

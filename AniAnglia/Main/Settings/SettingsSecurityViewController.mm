@@ -59,6 +59,12 @@
         self->_profile_preferences = api->profiles().my_preferences();
         return YES;
     } withUICompletion:^{
+        if (!self->_profile_preferences) {
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Ошибка" message:@"Не удалось загрузить настройки приватности." preferredStyle:UIAlertControllerStyleAlert];
+            [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleCancel handler:nil]];
+            [self presentViewController:alert animated:YES completion:nil];
+            return;
+        }
         [self setup];
         [self setupLayout];
     }];
@@ -191,11 +197,16 @@
 }
 
 -(void)tableView:(UITableView *)table_view didSelectRowAtIndexPath:(NSIndexPath *)index_path {
-    NSInteger section = index_path.section;
-    NSInteger row = index_path.row;
     [table_view deselectRowAtIndexPath:index_path animated:YES];
-    
-    // TODO
+    UITableViewCell *cell = [table_view cellForRowAtIndexPath:index_path];
+    if ([cell respondsToSelector:@selector(button)]) {
+        UIButton *btn = [cell valueForKey:@"button"];
+        [btn sendActionsForControlEvents:UIControlEventTouchUpInside];
+    } else if (index_path.section == 0) {
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Настройки" message:@"Этот раздел находится в разработке (еще не реализован в исходном приложении AniAnglia)." preferredStyle:UIAlertControllerStyleAlert];
+        [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleCancel handler:nil]];
+        [self presentViewController:alert animated:YES completion:nil];
+    }
 }
 
 -(NSString*)getStatsPrivacyName:(anixart::Profile::StatsPermission)permission {

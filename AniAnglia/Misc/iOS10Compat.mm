@@ -13,6 +13,7 @@
 #import <dlfcn.h>
 #import <execinfo.h>
 #import <signal.h>
+#include <exception>
 
 #pragma mark - Standalone Action & Menu Fallback Objects
 
@@ -101,12 +102,21 @@ static UILayoutGuide* Compat_UIView_safeAreaLayoutGuide(UIView *self, SEL _cmd) 
         guide = [[UILayoutGuide alloc] init];
         guide.identifier = @"iOS10_Compat_SafeAreaGuide";
         [self addLayoutGuide:guide];
-        [NSLayoutConstraint activateConstraints:@[
-            [guide.topAnchor constraintEqualToAnchor:self.topAnchor],
-            [guide.bottomAnchor constraintEqualToAnchor:self.bottomAnchor],
-            [guide.leadingAnchor constraintEqualToAnchor:self.leadingAnchor],
-            [guide.trailingAnchor constraintEqualToAnchor:self.trailingAnchor]
-        ]];
+        if ([self isKindOfClass:[UIScrollView class]]) {
+            [NSLayoutConstraint activateConstraints:@[
+                [guide.topAnchor constraintEqualToAnchor:self.topAnchor],
+                [guide.leadingAnchor constraintEqualToAnchor:self.leadingAnchor],
+                [guide.widthAnchor constraintEqualToAnchor:self.widthAnchor],
+                [guide.heightAnchor constraintEqualToAnchor:self.heightAnchor]
+            ]];
+        } else {
+            [NSLayoutConstraint activateConstraints:@[
+                [guide.topAnchor constraintEqualToAnchor:self.topAnchor],
+                [guide.bottomAnchor constraintEqualToAnchor:self.bottomAnchor],
+                [guide.leadingAnchor constraintEqualToAnchor:self.leadingAnchor],
+                [guide.trailingAnchor constraintEqualToAnchor:self.trailingAnchor]
+            ]];
+        }
         objc_setAssociatedObject(self, &kSafeAreaGuideKey, guide, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
     return guide;
@@ -238,12 +248,17 @@ static UIBarButtonItem* Compat_UIBarButtonItem_initWithPrimaryAction(UIBarButton
     if (!topVC) return;
     
     if (alert.popoverPresentationController) {
-        alert.popoverPresentationController.sourceView = self;
-        CGRect rect = self.bounds;
-        if (rect.size.width <= 0 || rect.size.height <= 0) {
-            rect = CGRectMake(0, 0, 1, 1);
+        if (self.window) {
+            alert.popoverPresentationController.sourceView = self;
+            CGRect rect = self.bounds;
+            if (rect.size.width <= 0 || rect.size.height <= 0) {
+                rect = CGRectMake(0, 0, 1, 1);
+            }
+            alert.popoverPresentationController.sourceRect = rect;
+        } else {
+            alert.popoverPresentationController.sourceView = topVC.view;
+            alert.popoverPresentationController.sourceRect = CGRectMake(CGRectGetMidX(topVC.view.bounds), CGRectGetMidY(topVC.view.bounds), 1, 1);
         }
-        alert.popoverPresentationController.sourceRect = rect;
         alert.popoverPresentationController.permittedArrowDirections = UIPopoverArrowDirectionAny;
     }
     [topVC presentViewController:alert animated:YES completion:nil];
@@ -829,8 +844,11 @@ static UIImage* Compat_systemImageNamed(id self, SEL _cmd, NSString *name) {
 static NSLayoutConstraint* (*s_orig_constraintWithItem)(id, SEL, id, NSLayoutAttribute, NSLayoutRelation, id, NSLayoutAttribute, CGFloat, CGFloat) = NULL;
 
 static NSLayoutConstraint* Compat_constraintWithItem(id self, SEL _cmd, id view1, NSLayoutAttribute attr1, NSLayoutRelation relation, id view2, NSLayoutAttribute attr2, CGFloat multiplier, CGFloat c) {
-    if (multiplier <= 0.0) {
-        multiplier = 0.00001; // AutoLayout throws NSInvalidArgumentException if multiplier <= 0
+    if (isnan(multiplier) || isinf(multiplier) || multiplier <= 0.0) {
+        multiplier = 0.00001; // AutoLayout throws NSInvalidArgumentException if multiplier <= 0 or NaN/Inf
+    }
+    if (isnan(c) || isinf(c)) {
+        c = 0.0;
     }
     if (s_orig_constraintWithItem) {
         return s_orig_constraintWithItem(self, _cmd, view1, attr1, relation, view2, attr2, multiplier, c);
@@ -852,7 +870,10 @@ static id Compat_UITableView_initWithFrame_style(UITableView *self, SEL _cmd, CG
 
 #pragma mark - Crash Reporting for iOS 10
 
+static BOOL s_exceptionCaught = NO;
+
 static void AniAngliaUncaughtExceptionHandler(NSException *exception) {
+    s_exceptionCaught = YES;
     NSString *crashInfo = [NSString stringWithFormat:@"Exception: %@\nReason: %@\nStack:\n%@",
                            exception.name,
                            exception.reason,
@@ -861,7 +882,35 @@ static void AniAngliaUncaughtExceptionHandler(NSException *exception) {
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
+static void AniAngliaTerminateHandler() {
+    if (!s_exceptionCaught) {
+        s_exceptionCaught = YES;
+        NSString *crashInfo = nil;
+        try {
+            std::exception_ptr eptr = std::current_exception();
+            if (eptr) {
+                std::rethrow_exception(eptr);
+            }
+        } catch (const std::exception &e) {
+            crashInfo = [NSString stringWithFormat:@"C++ Exception: %s", e.what()];
+        } catch (...) {
+            crashInfo = @"Unknown C++ Exception caught by terminate handler";
+        }
+        if (crashInfo) {
+            [[NSUserDefaults standardUserDefaults] setObject:crashInfo forKey:@"AniAngliaLastCrash"];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+        }
+    }
+    abort();
+}
+
 static void AniAngliaSignalHandler(int sig) {
+    if (s_exceptionCaught && sig == SIGABRT) {
+        signal(sig, SIG_DFL);
+        raise(sig);
+        return;
+    }
+    
     void *callstack[64];
     int frames = backtrace(callstack, 64);
     char **strs = backtrace_symbols(callstack, frames);
@@ -893,6 +942,7 @@ static void AniAngliaSignalHandler(int sig) {
 + (void)load {
     // 0. Install Crash Handlers
     NSSetUncaughtExceptionHandler(&AniAngliaUncaughtExceptionHandler);
+    std::set_terminate(AniAngliaTerminateHandler);
     signal(SIGSEGV, AniAngliaSignalHandler);
     signal(SIGABRT, AniAngliaSignalHandler);
     signal(SIGBUS, AniAngliaSignalHandler);

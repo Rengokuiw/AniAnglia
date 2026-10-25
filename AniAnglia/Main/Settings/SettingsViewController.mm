@@ -180,6 +180,14 @@
     return nil;
 }
 
+-(void)showComingSoonAlert {
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"app.settings.title", @"Настройки")
+                                                                   message:@"Этот раздел находится в разработке (еще не реализован в исходном приложении AniAnglia)."
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleCancel handler:nil]];
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
 -(void)tableView:(UITableView *)table_view didSelectRowAtIndexPath:(NSIndexPath *)index_path {
     NSInteger section = index_path.section;
     NSInteger row = index_path.row;
@@ -188,15 +196,17 @@
     if (section == 0) {
         if (row == 0) {
             [self onProfileSelected];
-        }
-        if (row == 1) {
+        } else if (row == 1) {
             [self onPrivacyAndSectitySelected];
         }
-    }
-    if (section == 1) {
+    } else if (section == 1) {
         if (row == 0) {
             [self onAppearanceSelected];
+        } else {
+            [self showComingSoonAlert];
         }
+    } else if (section == 3) {
+        [self showComingSoonAlert];
     }
 }
 
