@@ -3845,6 +3845,8 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
+					"-include",
+					"./AniAnglia/Misc/iOS10Compat.h",
 					"-I./AniAnglia/Libraries/include",
 					"-I./AniAnglia/Libraries/aateam/libanixart/include",
 					"-I./AniAnglia/Libraries/aateam/libtorrentrepo/include",
@@ -3909,6 +3911,8 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				OTHER_CFLAGS = (
+					"-include",
+					"./AniAnglia/Misc/iOS10Compat.h",
 					"-I./AniAnglia/Libraries/include",
 					"-I./AniAnglia/Libraries/aateam/libanixart/include",
 					"-I./AniAnglia/Libraries/aateam/libtorrentrepo/include",

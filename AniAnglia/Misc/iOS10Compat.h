@@ -8,6 +8,8 @@
 #ifndef iOS10Compat_h
 #define iOS10Compat_h
 
+#ifdef __OBJC__
+#import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < 110000
@@ -42,8 +44,59 @@ typedef NS_ENUM(NSInteger, UIUserInterfaceStyle) {
 #endif
 #endif
 
+#ifndef UIMenuOptionsDestructive
+#define UIMenuOptionsDestructive (1UL << 1)
+#endif
+
+@interface AniAngliaCompatAction : NSObject
+@property (nonatomic, copy) NSString *title;
+@property (nonatomic, strong) UIImage *image;
+@property (nonatomic, copy) NSString *identifier;
+@property (nonatomic, assign) NSUInteger attributes;
+@property (nonatomic, copy) void (^handler)(id action);
++ (instancetype)actionWithTitle:(NSString *)title image:(UIImage *)image identifier:(NSString *)identifier handler:(void (^)(id action))handler;
+@end
+
+@interface AniAngliaCompatMenu : NSObject
+@property (nonatomic, copy) NSString *title;
+@property (nonatomic, strong) UIImage *image;
+@property (nonatomic, copy) NSString *identifier;
+@property (nonatomic, assign) NSUInteger options;
+@property (nonatomic, strong) NSArray *children;
++ (instancetype)menuWithChildren:(NSArray *)children;
++ (instancetype)menuWithTitle:(NSString *)title children:(NSArray *)children;
++ (instancetype)menuWithTitle:(NSString *)title image:(UIImage *)image identifier:(NSString *)identifier options:(NSUInteger)options children:(NSArray *)children;
+@end
+
+@interface AniAngliaCompatContextMenuInteraction : NSObject
+@property (nonatomic, weak) id delegate;
+- (instancetype)initWithDelegate:(id)delegate;
+@end
+
+@interface AniAngliaCompatContextMenuConfiguration : NSObject
+@property (nonatomic, strong) id identifier;
++ (instancetype)configurationWithIdentifier:(id)identifier previewProvider:(id)previewProvider actionProvider:(id)actionProvider;
+@end
+
 @interface UIImage (iOS10Compat)
 + (UIImage *)compat_systemImageNamed:(NSString *)name;
 @end
 
+#ifndef UIAction
+#define UIAction AniAngliaCompatAction
+#endif
+
+#ifndef UIMenu
+#define UIMenu AniAngliaCompatMenu
+#endif
+
+#ifndef UIContextMenuConfiguration
+#define UIContextMenuConfiguration AniAngliaCompatContextMenuConfiguration
+#endif
+
+#ifndef UIContextMenuInteraction
+#define UIContextMenuInteraction AniAngliaCompatContextMenuInteraction
+#endif
+
+#endif /* __OBJC__ */
 #endif /* iOS10Compat_h */

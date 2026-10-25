@@ -32,6 +32,27 @@
     } else {
         self.window = [[MainWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
         [self.window makeKeyAndVisible];
+        
+        NSString *lastCrash = [[NSUserDefaults standardUserDefaults] stringForKey:@"AniAngliaLastCrash"];
+        if (lastCrash.length > 0) {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Краш приложения" message:lastCrash preferredStyle:UIAlertControllerStyleAlert];
+                [alert addAction:[UIAlertAction actionWithTitle:@"Скопировать" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+                    [UIPasteboard generalPasteboard].string = lastCrash;
+                    [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"AniAngliaLastCrash"];
+                    [[NSUserDefaults standardUserDefaults] synchronize];
+                }]];
+                [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+                    [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"AniAngliaLastCrash"];
+                    [[NSUserDefaults standardUserDefaults] synchronize];
+                }]];
+                UIViewController *rootVC = self.window.rootViewController;
+                while (rootVC.presentedViewController) {
+                    rootVC = rootVC.presentedViewController;
+                }
+                [rootVC presentViewController:alert animated:YES completion:nil];
+            });
+        }
     }
     
     return YES;

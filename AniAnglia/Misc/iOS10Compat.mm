@@ -11,16 +11,10 @@
 #import <Security/Security.h>
 #import <Security/SecureTransport.h>
 #import <dlfcn.h>
+#import <execinfo.h>
+#import <signal.h>
 
 #pragma mark - Standalone Action & Menu Fallback Objects
-
-@interface AniAngliaCompatAction : NSObject
-@property (nonatomic, copy) NSString *title;
-@property (nonatomic, strong) UIImage *image;
-@property (nonatomic, copy) NSString *identifier;
-@property (nonatomic, copy) void (^handler)(id action);
-+ (instancetype)actionWithTitle:(NSString *)title image:(UIImage *)image identifier:(NSString *)identifier handler:(void (^)(id action))handler;
-@end
 
 @implementation AniAngliaCompatAction
 + (instancetype)actionWithTitle:(NSString *)title image:(UIImage *)image identifier:(NSString *)identifier handler:(void (^)(id action))handler {
@@ -28,19 +22,10 @@
     action.title = title ?: @"";
     action.image = image;
     action.identifier = identifier ?: @"";
+    action.attributes = 0;
     action.handler = handler;
     return action;
 }
-@end
-
-@interface AniAngliaCompatMenu : NSObject
-@property (nonatomic, copy) NSString *title;
-@property (nonatomic, strong) UIImage *image;
-@property (nonatomic, copy) NSString *identifier;
-@property (nonatomic, strong) NSArray *children;
-+ (instancetype)menuWithChildren:(NSArray *)children;
-+ (instancetype)menuWithTitle:(NSString *)title children:(NSArray *)children;
-+ (instancetype)menuWithTitle:(NSString *)title image:(UIImage *)image identifier:(NSString *)identifier options:(NSUInteger)options children:(NSArray *)children;
 @end
 
 @implementation AniAngliaCompatMenu
@@ -55,14 +40,10 @@
     menu.title = title ?: @"";
     menu.image = image;
     menu.identifier = identifier ?: @"";
+    menu.options = options;
     menu.children = children ?: @[];
     return menu;
 }
-@end
-
-@interface AniAngliaCompatContextMenuInteraction : NSObject
-@property (nonatomic, weak) id delegate;
-- (instancetype)initWithDelegate:(id)delegate;
 @end
 
 @implementation AniAngliaCompatContextMenuInteraction
@@ -72,11 +53,6 @@
     }
     return self;
 }
-@end
-
-@interface AniAngliaCompatContextMenuConfiguration : NSObject
-@property (nonatomic, strong) id identifier;
-+ (instancetype)configurationWithIdentifier:(id)identifier previewProvider:(id)previewProvider actionProvider:(id)actionProvider;
 @end
 
 @implementation AniAngliaCompatContextMenuConfiguration
@@ -208,19 +184,41 @@ static UIBarButtonItem* Compat_UIBarButtonItem_initWithPrimaryAction(UIBarButton
     if (menuTitle.length == 0) menuTitle = nil;
     
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:menuTitle message:nil preferredStyle:UIAlertControllerStyleActionSheet];
-    for (id child in children) {
-        if ([child respondsToSelector:@selector(title)] && [child respondsToSelector:@selector(handler)]) {
-            NSString *title = [child valueForKey:@"title"];
-            void (^handler)(id) = [child valueForKey:@"handler"];
-            UIAlertAction *alertAction = [UIAlertAction actionWithTitle:title style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-                if (handler) handler(child);
+    
+    void (^addActionItem)(id item, NSString *prefix) = ^(id item, NSString *prefix) {
+        if ([item isKindOfClass:[AniAngliaCompatAction class]]) {
+            AniAngliaCompatAction *act = (AniAngliaCompatAction *)item;
+            NSString *displayTitle = prefix.length > 0 ? [NSString stringWithFormat:@"%@: %@", prefix, act.title] : act.title;
+            UIAlertActionStyle style = (act.attributes & UIMenuOptionsDestructive) ? UIAlertActionStyleDestructive : UIAlertActionStyleDefault;
+            UIAlertAction *alertAction = [UIAlertAction actionWithTitle:displayTitle style:style handler:^(UIAlertAction *action) {
+                if (act.handler) act.handler(act);
             }];
             [alert addAction:alertAction];
+        } else if ([item respondsToSelector:@selector(title)] && [item respondsToSelector:@selector(handler)]) {
+            NSString *title = [item valueForKey:@"title"];
+            NSString *displayTitle = prefix.length > 0 ? [NSString stringWithFormat:@"%@: %@", prefix, title] : title;
+            void (^handler)(id) = [item valueForKey:@"handler"];
+            UIAlertAction *alertAction = [UIAlertAction actionWithTitle:displayTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+                if (handler) handler(item);
+            }];
+            [alert addAction:alertAction];
+        }
+    };
+    
+    for (id child in children) {
+        if ([child isKindOfClass:[AniAngliaCompatMenu class]]) {
+            AniAngliaCompatMenu *subMenu = (AniAngliaCompatMenu *)child;
+            for (id subChild in subMenu.children) {
+                addActionItem(subChild, subMenu.title);
+            }
+        } else {
+            addActionItem(child, nil);
         }
     }
     [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"app.common.cancel", @"Отмена") style:UIAlertActionStyleCancel handler:nil]];
     
-    UIWindow *window = [UIApplication sharedApplication].keyWindow;
+    UIWindow *window = self.window;
+    if (!window) window = [UIApplication sharedApplication].keyWindow;
     if (!window) {
         NSArray *windows = [UIApplication sharedApplication].windows;
         if (windows.count > 0) window = windows.firstObject;
@@ -237,9 +235,15 @@ static UIBarButtonItem* Compat_UIBarButtonItem_initWithPrimaryAction(UIBarButton
             break;
         }
     }
+    if (!topVC) return;
+    
     if (alert.popoverPresentationController) {
         alert.popoverPresentationController.sourceView = self;
-        alert.popoverPresentationController.sourceRect = self.bounds;
+        CGRect rect = self.bounds;
+        if (rect.size.width <= 0 || rect.size.height <= 0) {
+            rect = CGRectMake(0, 0, 1, 1);
+        }
+        alert.popoverPresentationController.sourceRect = rect;
         alert.popoverPresentationController.permittedArrowDirections = UIPopoverArrowDirectionAny;
     }
     [topVC presentViewController:alert animated:YES completion:nil];
@@ -834,6 +838,39 @@ static id Compat_UITableView_initWithFrame_style(UITableView *self, SEL _cmd, CG
     return self;
 }
 
+#pragma mark - Crash Reporting for iOS 10
+
+static void AniAngliaUncaughtExceptionHandler(NSException *exception) {
+    NSString *crashInfo = [NSString stringWithFormat:@"Exception: %@\nReason: %@\nStack:\n%@",
+                           exception.name,
+                           exception.reason,
+                           [exception.callStackSymbols componentsJoinedByString:@"\n"]];
+    [[NSUserDefaults standardUserDefaults] setObject:crashInfo forKey:@"AniAngliaLastCrash"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+static void AniAngliaSignalHandler(int sig) {
+    void *callstack[64];
+    int frames = backtrace(callstack, 64);
+    char **strs = backtrace_symbols(callstack, frames);
+    NSMutableArray *symbols = [NSMutableArray arrayWithCapacity:frames];
+    for (int i = 0; i < frames; ++i) {
+        if (strs && strs[i]) {
+            [symbols addObject:[NSString stringWithUTF8String:strs[i]]];
+        }
+    }
+    if (strs) free(strs);
+    
+    NSString *crashInfo = [NSString stringWithFormat:@"Signal: %d\nStack:\n%@",
+                           sig,
+                           [symbols componentsJoinedByString:@"\n"]];
+    [[NSUserDefaults standardUserDefaults] setObject:crashInfo forKey:@"AniAngliaLastCrash"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    
+    signal(sig, SIG_DFL);
+    raise(sig);
+}
+
 #pragma mark - Initializer / Swizzler
 
 @interface iOS10CompatLoader : NSObject
@@ -842,6 +879,14 @@ static id Compat_UITableView_initWithFrame_style(UITableView *self, SEL _cmd, CG
 @implementation iOS10CompatLoader
 
 + (void)load {
+    // 0. Install Crash Handlers
+    NSSetUncaughtExceptionHandler(&AniAngliaUncaughtExceptionHandler);
+    signal(SIGSEGV, AniAngliaSignalHandler);
+    signal(SIGABRT, AniAngliaSignalHandler);
+    signal(SIGBUS, AniAngliaSignalHandler);
+    signal(SIGILL, AniAngliaSignalHandler);
+    signal(SIGTRAP, AniAngliaSignalHandler);
+
     // 1. Dynamic class registration if not present (iOS < 13)
     if (objc_getClass("UIAction") == Nil) {
         Class actionCls = objc_allocateClassPair([AniAngliaCompatAction class], "UIAction", 0);

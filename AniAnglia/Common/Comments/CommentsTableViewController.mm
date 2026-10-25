@@ -451,8 +451,9 @@
     _data_provider = data_provider;
     if (_data_provider) {
         _data_provider.delegate = self;
-        // TODO: if needed
-        [_data_provider loadCurrentPage];
+        if (![_data_provider isEnd]) {
+            [_data_provider loadCurrentPage];
+        }
     }
 }
 

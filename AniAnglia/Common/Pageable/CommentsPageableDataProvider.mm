@@ -61,6 +61,9 @@
 }
 
 -(BOOL)isEnd {
+    if (!_pages) {
+        return YES;
+    }
     return _pages->is_end();
 }
 -(size_t)getItemsCount {
@@ -109,12 +112,15 @@
 }
 
 -(void)loadCurrentPage {
+    if (!_pages) {
+        return;
+    }
     [self appendItemsFromBlock:^() {
         return self->_pages->get();
     }];
 }
 -(void)loadNextPage {
-    if (_pages->is_end()) {
+    if (!_pages || _pages->is_end()) {
         return;
     }
     [self appendItemsFromBlock:^() {
@@ -122,6 +128,9 @@
     }];
 }
 -(void)loadPageAtIndex:(NSInteger)index {
+    if (!_pages) {
+        return;
+    }
     __strong auto strong_self = self;
     [self setItemsFromBlock:^() {
         return strong_self->_pages->go(static_cast<int32_t>(index));

@@ -71,6 +71,12 @@
     if (_show_all_button_pressed || [_text_label.text length] == 0) {
         return;
     }
+    if (_show_all_button.superview != nil) {
+        return;
+    }
+    if (_text_label.bounds.size.width <= 0) {
+        return;
+    }
     
     CGSize text_size = [_text_label.text boundingRectWithSize:CGSizeMake(_text_label.bounds.size.width, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName: _text_label.font} context:nil].size;
     

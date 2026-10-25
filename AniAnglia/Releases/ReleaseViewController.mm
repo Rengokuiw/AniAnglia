@@ -340,16 +340,16 @@
     _title_label.font = [UIFont systemFontOfSize:36];
     _title_label.textAlignment = NSTextAlignmentCenter;
     
-    [self addSubview:_image_view];
+    [self.contentView addSubview:_image_view];
     [_image_view addSubview:_title_label];
     
     _image_view.translatesAutoresizingMaskIntoConstraints = NO;
     _title_label.translatesAutoresizingMaskIntoConstraints = NO;
     [NSLayoutConstraint activateConstraints:@[
-        [_image_view.topAnchor constraintEqualToAnchor:self.topAnchor],
-        [_image_view.leadingAnchor constraintEqualToAnchor:self.leadingAnchor],
-        [_image_view.trailingAnchor constraintEqualToAnchor:self.trailingAnchor],
-        [_image_view.bottomAnchor constraintEqualToAnchor:self.bottomAnchor],
+        [_image_view.topAnchor constraintEqualToAnchor:self.contentView.topAnchor],
+        [_image_view.leadingAnchor constraintEqualToAnchor:self.contentView.leadingAnchor],
+        [_image_view.trailingAnchor constraintEqualToAnchor:self.contentView.trailingAnchor],
+        [_image_view.bottomAnchor constraintEqualToAnchor:self.contentView.bottomAnchor],
         
         [_title_label.topAnchor constraintGreaterThanOrEqualToAnchor:_image_view.topAnchor],
         [_title_label.leadingAnchor constraintGreaterThanOrEqualToAnchor:_image_view.leadingAnchor],
@@ -641,14 +641,14 @@
     _image_view = [LoadableImageView new];
     _image_view.contentMode = UIViewContentModeScaleAspectFill;
     
-    [self addSubview:_image_view];
+    [self.contentView addSubview:_image_view];
     
     _image_view.translatesAutoresizingMaskIntoConstraints = NO;
     [NSLayoutConstraint activateConstraints:@[
-        [_image_view.topAnchor constraintEqualToAnchor:self.topAnchor],
-        [_image_view.leadingAnchor constraintEqualToAnchor:self.leadingAnchor],
-        [_image_view.trailingAnchor constraintEqualToAnchor:self.trailingAnchor],
-        [_image_view.bottomAnchor constraintEqualToAnchor:self.bottomAnchor]
+        [_image_view.topAnchor constraintEqualToAnchor:self.contentView.topAnchor],
+        [_image_view.leadingAnchor constraintEqualToAnchor:self.contentView.leadingAnchor],
+        [_image_view.trailingAnchor constraintEqualToAnchor:self.contentView.trailingAnchor],
+        [_image_view.bottomAnchor constraintEqualToAnchor:self.contentView.bottomAnchor]
     ]];
 }
 -(void)setupLayout {
