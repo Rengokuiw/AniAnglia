@@ -300,6 +300,15 @@ static BOOL Compat_UIButton_showsMenuAsPrimaryAction(UIButton *self, SEL _cmd) {
     return [objc_getAssociatedObject(self, &kButtonShowsMenuKey) boolValue];
 }
 
+@implementation UIButton (AniAngliaiOS10Compat)
+- (void)setShowsMenuAsPrimaryAction:(BOOL)shows {
+    Compat_UIButton_setShowsMenuAsPrimaryAction(self, @selector(setShowsMenuAsPrimaryAction:), shows);
+}
+- (BOOL)showsMenuAsPrimaryAction {
+    return Compat_UIButton_showsMenuAsPrimaryAction(self, @selector(showsMenuAsPrimaryAction));
+}
+@end
+
 @implementation UIBarButtonItem (iOS10PrimaryActionHelper)
 - (instancetype)initWithPrimaryActionCompat:(id)action {
     return Compat_UIBarButtonItem_initWithPrimaryAction(self, @selector(initWithPrimaryAction:), action);
@@ -1041,11 +1050,23 @@ static void AniAngliaSignalHandler(int sig) {
     }
     
     // 7. Add menu / showsMenuAsPrimaryAction to UIButton if not present (iOS < 14)
-    if (![UIButton instancesRespondToSelector:@selector(setMenu:)]) {
-        class_addMethod([UIButton class], @selector(setMenu:), (IMP)Compat_UIButton_setMenu, "v@:@");
-        class_addMethod([UIButton class], @selector(menu), (IMP)Compat_UIButton_getMenu, "@@:");
+    if (![UIButton instancesRespondToSelector:@selector(setShowsMenuAsPrimaryAction:)]) {
         class_addMethod([UIButton class], @selector(setShowsMenuAsPrimaryAction:), (IMP)Compat_UIButton_setShowsMenuAsPrimaryAction, "v@:B");
+    }
+    if (![UIButton instancesRespondToSelector:@selector(showsMenuAsPrimaryAction)]) {
         class_addMethod([UIButton class], @selector(showsMenuAsPrimaryAction), (IMP)Compat_UIButton_showsMenuAsPrimaryAction, "B@:");
+    }
+    Method origSetMenu = class_getInstanceMethod([UIButton class], @selector(setMenu:));
+    if (origSetMenu) {
+        method_setImplementation(origSetMenu, (IMP)Compat_UIButton_setMenu);
+    } else {
+        class_addMethod([UIButton class], @selector(setMenu:), (IMP)Compat_UIButton_setMenu, "v@:@");
+    }
+    Method origMenu = class_getInstanceMethod([UIButton class], @selector(menu));
+    if (origMenu) {
+        method_setImplementation(origMenu, (IMP)Compat_UIButton_getMenu);
+    } else {
+        class_addMethod([UIButton class], @selector(menu), (IMP)Compat_UIButton_getMenu, "@@:");
     }
     
     // 8. Add system colors to UIColor if not present (iOS < 13)

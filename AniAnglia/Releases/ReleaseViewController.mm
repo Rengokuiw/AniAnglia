@@ -867,7 +867,9 @@
     _add_list_button = [UIButton new];
     [_add_list_button setImage:[UIImage systemImageNamed:@"chevron.down"] forState:UIControlStateNormal];
     [(id)_add_list_button setMenu:(id)[self makeAddListButtonMenu]];
-    _add_list_button.showsMenuAsPrimaryAction = YES;
+    if ([_add_list_button respondsToSelector:@selector(setShowsMenuAsPrimaryAction:)]) {
+        _add_list_button.showsMenuAsPrimaryAction = YES;
+    }
     _add_list_button.layer.cornerRadius = 8.0;
     _add_list_button.contentEdgeInsets = UIEdgeInsetsMake(0, 6, 0, 6);
     

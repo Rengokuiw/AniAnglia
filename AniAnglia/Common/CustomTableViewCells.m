@@ -308,7 +308,9 @@
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     
     _button = [UIButton new];
-    _button.showsMenuAsPrimaryAction = YES;
+    if ([_button respondsToSelector:@selector(setShowsMenuAsPrimaryAction:)]) {
+        _button.showsMenuAsPrimaryAction = YES;
+    }
     
     _title_label = [UILabel new];
     _title_label.textAlignment = NSTextAlignmentLeft;

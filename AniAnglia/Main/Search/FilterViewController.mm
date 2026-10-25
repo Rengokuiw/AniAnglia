@@ -179,7 +179,9 @@
     _label.text = _title;
     _button = [UIButton new];
     [_button setTitle:_actions[0].title forState:UIControlStateNormal];
-    _button.showsMenuAsPrimaryAction = YES;
+    if ([_button respondsToSelector:@selector(setShowsMenuAsPrimaryAction:)]) {
+        _button.showsMenuAsPrimaryAction = YES;
+    }
     
     [self addSubview:_label];
     [self addSubview:_button];
@@ -238,7 +240,9 @@
     _button = [UIButton new];
     [_button setTitle:_title forState:UIControlStateNormal];
     [_button addTarget:self action:@selector(onButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    _button.showsMenuAsPrimaryAction = YES;
+    if ([_button respondsToSelector:@selector(setShowsMenuAsPrimaryAction:)]) {
+        _button.showsMenuAsPrimaryAction = YES;
+    }
     _button.layer.cornerRadius = 8;
     
     [self addSubview:_label];

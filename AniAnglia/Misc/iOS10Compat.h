@@ -90,6 +90,11 @@ typedef NS_ENUM(NSInteger, UIUserInterfaceStyle) {
 - (void)setMenuCompat:(id)menu;
 @end
 
+@interface UIButton (AniAngliaiOS10Compat)
+- (void)setShowsMenuAsPrimaryAction:(BOOL)shows;
+- (BOOL)showsMenuAsPrimaryAction;
+@end
+
 #ifndef UIAction
 #define UIAction AniAngliaCompatAction
 #endif
