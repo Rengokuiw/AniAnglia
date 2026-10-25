@@ -13,7 +13,186 @@
 #import "LibanixartApi.h"
 #import "StringCvt.h"
 
-@interface PlayerViewController : AVPlayerViewController
+@interface SeekIndicatorView : UIView
+@property (nonatomic, strong) UILabel *label;
+- (void)showInView:(UIView *)parentView isForward:(BOOL)isForward;
+@end
+
+@implementation SeekIndicatorView
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        self.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.7];
+        self.layer.masksToBounds = YES;
+        self.userInteractionEnabled = NO;
+        self.alpha = 0.0;
+        
+        _label = [[UILabel alloc] initWithFrame:self.bounds];
+        _label.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        _label.textAlignment = NSTextAlignmentCenter;
+        _label.textColor = [UIColor whiteColor];
+        _label.font = [UIFont boldSystemFontOfSize:16];
+        [self addSubview:_label];
+    }
+    return self;
+}
+
+- (void)showInView:(UIView *)parentView isForward:(BOOL)isForward {
+    [parentView addSubview:self];
+    
+    CGFloat pw = parentView.bounds.size.width;
+    CGFloat ph = parentView.bounds.size.height;
+    CGFloat size = 80.0;
+    CGFloat cx = isForward ? (pw * 0.75) : (pw * 0.25);
+    CGFloat cy = ph * 0.5;
+    
+    self.frame = CGRectMake(cx - size / 2.0, cy - size / 2.0, size, size);
+    self.layer.cornerRadius = size / 2.0;
+    self.label.frame = self.bounds;
+    self.label.text = isForward ? @"+10с ▶▶" : @"◀◀ -10с";
+    
+    [self.layer removeAllAnimations];
+    self.transform = CGAffineTransformMakeScale(0.7, 0.7);
+    self.alpha = 0.0;
+    
+    [UIView animateWithDuration:0.18 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+        self.alpha = 1.0;
+        self.transform = CGAffineTransformIdentity;
+    } completion:^(BOOL finished) {
+        if (finished) {
+            [UIView animateWithDuration:0.25 delay:0.35 options:UIViewAnimationOptionCurveEaseIn animations:^{
+                self.alpha = 0.0;
+                self.transform = CGAffineTransformMakeScale(1.15, 1.15);
+            } completion:^(BOOL fin) {
+                if (fin) {
+                    [self removeFromSuperview];
+                }
+            }];
+        }
+    }];
+}
+
+@end
+
+@interface PlayerViewController () <UIGestureRecognizerDelegate>
+@property (nonatomic, strong) UITapGestureRecognizer *doubleTapGesture;
+@property (nonatomic, strong) SeekIndicatorView *indicatorView;
+- (void)seekByDelta:(Float64)delta;
+@end
+
+@implementation PlayerViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    _indicatorView = [[SeekIndicatorView alloc] initWithFrame:CGRectMake(0, 0, 80, 80)];
+    
+    _doubleTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTap:)];
+    _doubleTapGesture.numberOfTapsRequired = 2;
+    _doubleTapGesture.numberOfTouchesRequired = 1;
+    _doubleTapGesture.delegate = self;
+    [self.view addGestureRecognizer:_doubleTapGesture];
+    
+    [self setupRemoteCommandCenter];
+}
+
+- (void)setupRemoteCommandCenter {
+    MPRemoteCommandCenter *commandCenter = [MPRemoteCommandCenter sharedCommandCenter];
+    [commandCenter.skipBackwardCommand removeTarget:nil];
+    [commandCenter.skipForwardCommand removeTarget:nil];
+    
+    commandCenter.skipBackwardCommand.enabled = YES;
+    commandCenter.skipBackwardCommand.preferredIntervals = @[@10];
+    __weak typeof(self) weakSelf = self;
+    [commandCenter.skipBackwardCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
+        MPSkipIntervalCommandEvent *skipEvent = (MPSkipIntervalCommandEvent *)event;
+        Float64 interval = (skipEvent.interval > 0) ? skipEvent.interval : 10.0;
+        [weakSelf seekByDelta:-interval];
+        return MPRemoteCommandHandlerStatusSuccess;
+    }];
+    
+    commandCenter.skipForwardCommand.enabled = YES;
+    commandCenter.skipForwardCommand.preferredIntervals = @[@10];
+    [commandCenter.skipForwardCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
+        MPSkipIntervalCommandEvent *skipEvent = (MPSkipIntervalCommandEvent *)event;
+        Float64 interval = (skipEvent.interval > 0) ? skipEvent.interval : 10.0;
+        [weakSelf seekByDelta:interval];
+        return MPRemoteCommandHandlerStatusSuccess;
+    }];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    [self configureSingleTapGesturesInView:self.view];
+}
+
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    [self configureSingleTapGesturesInView:self.view];
+}
+
+- (void)configureSingleTapGesturesInView:(UIView *)rootView {
+    for (UIGestureRecognizer *gr in rootView.gestureRecognizers) {
+        if ([gr isKindOfClass:[UITapGestureRecognizer class]]) {
+            UITapGestureRecognizer *tgr = (UITapGestureRecognizer *)gr;
+            if (tgr.numberOfTapsRequired == 1 && tgr != _doubleTapGesture) {
+                [tgr requireGestureRecognizerToFail:_doubleTapGesture];
+            }
+        }
+    }
+    for (UIView *sub in rootView.subviews) {
+        [self configureSingleTapGesturesInView:sub];
+    }
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
+    if (gestureRecognizer == _doubleTapGesture) {
+        UIView *v = touch.view;
+        while (v && v != self.view) {
+            if ([v isKindOfClass:[UIControl class]]) {
+                return NO;
+            }
+            v = v.superview;
+        }
+    }
+    return YES;
+}
+
+- (void)handleDoubleTap:(UITapGestureRecognizer *)gesture {
+    if (gesture.state != UIGestureRecognizerStateEnded) return;
+    
+    CGPoint loc = [gesture locationInView:self.view];
+    CGFloat width = self.view.bounds.size.width;
+    BOOL isForward = (loc.x >= (width / 2.0));
+    Float64 delta = isForward ? 10.0 : -10.0;
+    
+    [self seekByDelta:delta];
+    [_indicatorView showInView:self.view isForward:isForward];
+}
+
+- (void)seekByDelta:(Float64)delta {
+    AVPlayer *p = self.player;
+    if (!p) return;
+    
+    CMTime current = p.currentTime;
+    if (CMTIME_IS_INVALID(current)) return;
+    Float64 curSeconds = CMTimeGetSeconds(current);
+    Float64 targetSeconds = curSeconds + delta;
+    if (targetSeconds < 0.0) targetSeconds = 0.0;
+    
+    AVPlayerItem *item = p.currentItem;
+    if (item && CMTIME_IS_VALID(item.duration) && item.duration.timescale > 0) {
+        Float64 dur = CMTimeGetSeconds(item.duration);
+        if (dur > 0 && targetSeconds > dur) {
+            targetSeconds = dur;
+        }
+    }
+    
+    CMTime targetTime = CMTimeMakeWithSeconds(targetSeconds, NSEC_PER_SEC);
+    CMTime tolerance = (targetSeconds <= 0.0) ? kCMTimeZero : CMTimeMakeWithSeconds(1.0, NSEC_PER_SEC);
+    [p seekToTime:targetTime toleranceBefore:tolerance toleranceAfter:tolerance completionHandler:nil];
+}
 
 @end
 
@@ -56,10 +235,6 @@ static inline std::string choose_quality(const std::unordered_map<std::string, s
     }
     return best_url;
 }
-
-@implementation PlayerViewController
-
-@end
 
 @implementation PlayerController
 
