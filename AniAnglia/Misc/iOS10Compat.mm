@@ -185,6 +185,13 @@ static UIBarButtonItem* Compat_UIBarButtonItem_initWithPrimaryAction(UIBarButton
 
 @implementation UIButton (AniAngliaCompatInternal)
 - (void)anianglia_menuButtonTapped:(id)sender {
+    static NSTimeInterval s_lastMenuTapTime = 0;
+    NSTimeInterval now = [NSDate timeIntervalSinceReferenceDate];
+    if (now - s_lastMenuTapTime < 0.5) {
+        return; // Debounce dual/rapid taps
+    }
+    s_lastMenuTapTime = now;
+    
     id menu = objc_getAssociatedObject(self, &kButtonMenuKey);
     if (!menu) return;
     NSArray *children = [menu respondsToSelector:@selector(children)] ? [menu valueForKey:@"children"] : nil;
@@ -247,21 +254,31 @@ static UIBarButtonItem* Compat_UIBarButtonItem_initWithPrimaryAction(UIBarButton
     }
     if (!topVC) return;
     
+    // If topVC is already presenting or dismissing, avoid invalid double presentation
+    if (topVC.isBeingPresented || topVC.isBeingDismissed || [topVC isKindOfClass:[UIAlertController class]]) {
+        return;
+    }
+    
     if (alert.popoverPresentationController) {
-        if (self.window) {
-            alert.popoverPresentationController.sourceView = self;
-            CGRect rect = self.bounds;
-            if (rect.size.width <= 0 || rect.size.height <= 0) {
-                rect = CGRectMake(0, 0, 1, 1);
-            }
-            alert.popoverPresentationController.sourceRect = rect;
-        } else {
-            alert.popoverPresentationController.sourceView = topVC.view;
-            alert.popoverPresentationController.sourceRect = CGRectMake(CGRectGetMidX(topVC.view.bounds), CGRectGetMidY(topVC.view.bounds), 1, 1);
+        UIView *presentingView = self;
+        if (!presentingView.window) {
+            presentingView = topVC.view;
         }
+        alert.popoverPresentationController.sourceView = presentingView;
+        CGRect rect = presentingView.bounds;
+        if (rect.size.width <= 0 || rect.size.height <= 0) {
+            rect = CGRectMake(CGRectGetMidX(topVC.view.bounds), CGRectGetMidY(topVC.view.bounds), 1, 1);
+            alert.popoverPresentationController.sourceView = topVC.view;
+        }
+        alert.popoverPresentationController.sourceRect = rect;
         alert.popoverPresentationController.permittedArrowDirections = UIPopoverArrowDirectionAny;
     }
-    [topVC presentViewController:alert animated:YES completion:nil];
+    
+    @try {
+        [topVC presentViewController:alert animated:YES completion:nil];
+    } @catch (NSException *ex) {
+        NSLog(@"[iOS10Compat] Exception presenting menu alert: %@", ex);
+    }
 }
 @end
 
@@ -886,15 +903,33 @@ static void AniAngliaTerminateHandler() {
     if (!s_exceptionCaught) {
         s_exceptionCaught = YES;
         NSString *crashInfo = nil;
+        
+        void *callstack[64];
+        int frames = backtrace(callstack, 64);
+        char **strs = backtrace_symbols(callstack, frames);
+        NSMutableArray *symbols = [NSMutableArray arrayWithCapacity:frames];
+        for (int i = 0; i < frames; ++i) {
+            if (strs && strs[i]) {
+                [symbols addObject:[NSString stringWithUTF8String:strs[i]]];
+            }
+        }
+        if (strs) free(strs);
+        NSString *stackStr = [symbols componentsJoinedByString:@"\n"];
+        
         try {
             std::exception_ptr eptr = std::current_exception();
             if (eptr) {
                 std::rethrow_exception(eptr);
             }
+        } catch (NSException *ne) {
+            crashInfo = [NSString stringWithFormat:@"NSException caught by terminate handler: %@\nReason: %@\nStack:\n%@\nBacktrace:\n%@",
+                         ne.name, ne.reason, [ne.callStackSymbols componentsJoinedByString:@"\n"], stackStr];
         } catch (const std::exception &e) {
-            crashInfo = [NSString stringWithFormat:@"C++ Exception: %s", e.what()];
+            crashInfo = [NSString stringWithFormat:@"C++ Exception: %s\nBacktrace:\n%@", e.what(), stackStr];
+        } catch (id obj) {
+            crashInfo = [NSString stringWithFormat:@"ObjC Exception: %@\nBacktrace:\n%@", obj, stackStr];
         } catch (...) {
-            crashInfo = @"Unknown C++ Exception caught by terminate handler";
+            crashInfo = [NSString stringWithFormat:@"Unknown Exception caught by terminate handler\nBacktrace:\n%@", stackStr];
         }
         if (crashInfo) {
             [[NSUserDefaults standardUserDefaults] setObject:crashInfo forKey:@"AniAngliaLastCrash"];

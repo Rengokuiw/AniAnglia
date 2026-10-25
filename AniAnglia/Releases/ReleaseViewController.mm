@@ -604,7 +604,9 @@
 }
 
 -(CGSize)collectionView:(UICollectionView *)collection_view layout:(UICollectionViewLayout *)collection_view_layout sizeForItemAtIndexPath:(NSIndexPath *)index_path {
-    return CGSizeMake(collection_view.frame.size.height * (16. / 9), collection_view.frame.size.height);
+    CGFloat h = collection_view.frame.size.height;
+    if (h <= 0) h = 180;
+    return CGSizeMake(h * (16. / 9), h);
 }
 
 -(void)collectionView:(UICollectionView *)collection_view didSelectItemAtIndexPath:(NSIndexPath *)index_path {
@@ -687,7 +689,7 @@
     
     _previews_collection_view.translatesAutoresizingMaskIntoConstraints = NO;
     [NSLayoutConstraint activateConstraints:@[
-        [_previews_collection_view.topAnchor constraintEqualToAnchor:self.topAnchor],
+        [_previews_collection_view.topAnchor constraintEqualToAnchor:self.layoutMarginsGuide.topAnchor],
         [_previews_collection_view.leadingAnchor constraintEqualToAnchor:self.layoutMarginsGuide.leadingAnchor],
         [_previews_collection_view.trailingAnchor constraintEqualToAnchor:self.layoutMarginsGuide.trailingAnchor],
         [_previews_collection_view.heightAnchor constraintEqualToConstant:180],
@@ -729,7 +731,9 @@
 }
 
 -(CGSize)collectionView:(UICollectionView *)collection_view layout:(UICollectionViewLayout *)collection_view_layout sizeForItemAtIndexPath:(NSIndexPath *)index_path {
-    return CGSizeMake(collection_view.frame.size.height * (16. / 9), collection_view.frame.size.height);
+    CGFloat h = collection_view.frame.size.height;
+    if (h <= 0) h = 180;
+    return CGSizeMake(h * (16. / 9), h);
 }
 
 -(void)collectionView:(UICollectionView *)collection_view didSelectItemAtIndexPath:(NSIndexPath *)index_path {
@@ -1064,18 +1068,18 @@
     
     [_api_proxy asyncCall:^BOOL(anixart::Api* api) {
         self->_release = self->_api_proxy.api->releases().get_release(self->_release_id);
-        return NO;
-    } completion:^(BOOL errored) {
-        [self onReleaseLoaded:errored];
+        return (self->_release == nullptr);
+    } completionWithError:^(BOOL errored, NSString *errorMessage) {
+        [self onReleaseLoaded:errored errorMessage:errorMessage];
     }];
 }
 
 -(void)loadWithReleaseGetter {
     [_api_proxy asyncCall:^BOOL(anixart::Api* api) {
         self->_release = self->_release_getter(api);
-        return NO;
-    } completion:^(BOOL errored) {
-        [self onReleaseLoaded:errored];
+        return (self->_release == nullptr);
+    } completionWithError:^(BOOL errored, NSString *errorMessage) {
+        [self onReleaseLoaded:errored errorMessage:errorMessage];
     }];
 }
 
@@ -1206,18 +1210,32 @@
 }
 
 -(void)onReleaseLoaded:(BOOL)errored {
+    [self onReleaseLoaded:errored errorMessage:nil];
+}
+
+-(void)onReleaseLoaded:(BOOL)errored errorMessage:(NSString*)errorMessage {
     @try {
-        [_loading_view endLoadingWithErrored:errored];
-        if (_refresh_control.refreshing) {
-            [_refresh_control endRefreshing];
-        }
-        
-        _scroll_view.hidden = errored;
         if (errored || !_release) {
+            NSString *displayErr = errorMessage.length > 0 ? errorMessage : NSLocalizedString(@"app.loadable.error.text", "");
+            NSLog(@"[ReleaseViewController] onReleaseLoaded failed: %@", displayErr);
+            [[NSUserDefaults standardUserDefaults] setObject:displayErr forKey:@"AniAngliaLastCardError"];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+            
+            [_loading_view endLoadingWithErrorMessage:displayErr];
+            if (_refresh_control.refreshing) {
+                [_refresh_control endRefreshing];
+            }
+            _scroll_view.hidden = YES;
             _scroll_view.refreshControl = nil;
             return;
         }
         
+        [_loading_view endLoadingWithErrored:NO];
+        if (_refresh_control.refreshing) {
+            [_refresh_control endRefreshing];
+        }
+        
+        _scroll_view.hidden = NO;
         _scroll_view.refreshControl = _refresh_control;
         if (!_is_ui_inited) {
             [self setup];
@@ -1229,8 +1247,9 @@
         NSString *crashInfo = [NSString stringWithFormat:@"Exception: %@\nReason: %@\nStack:\n%@",
                                e.name, e.reason, [e.callStackSymbols componentsJoinedByString:@"\n"]];
         [[NSUserDefaults standardUserDefaults] setObject:crashInfo forKey:@"AniAngliaLastCrash"];
+        [[NSUserDefaults standardUserDefaults] setObject:crashInfo forKey:@"AniAngliaLastCardError"];
         [[NSUserDefaults standardUserDefaults] synchronize];
-        [_loading_view endLoadingWithErrored:YES];
+        [_loading_view endLoadingWithErrorMessage:[NSString stringWithFormat:@"%@:\n%@", e.name, e.reason]];
         _scroll_view.hidden = YES;
     }
 }

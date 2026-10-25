@@ -180,6 +180,46 @@
     return nil;
 }
 
+-(void)showDebugLogAlert {
+    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+    NSString *lastCrash = [ud stringForKey:@"AniAngliaLastCrash"];
+    NSString *lastCardError = [ud stringForKey:@"AniAngliaLastCardError"];
+    NSString *lastApiError = [ud stringForKey:@"AniAngliaLastApiError"];
+    
+    NSMutableString *report = [NSMutableString new];
+    if (lastCrash.length > 0) {
+        [report appendFormat:@"--- Последний сбой (Crash) ---\n%@\n\n", lastCrash];
+    }
+    if (lastCardError.length > 0) {
+        [report appendFormat:@"--- Ошибка карточки (Card) ---\n%@\n\n", lastCardError];
+    }
+    if (lastApiError.length > 0) {
+        [report appendFormat:@"--- Ошибка API ---\n%@\n\n", lastApiError];
+    }
+    
+    if (report.length == 0) {
+        [report appendString:@"Ошибок не зафиксировано. Все системы работают в штатном режиме."];
+    }
+    
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Журнал диагностики"
+                                                                   message:report
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:@"Скопировать" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [UIPasteboard generalPasteboard].string = report;
+    }]];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:@"Очистить журнал" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
+        [ud removeObjectForKey:@"AniAngliaLastCrash"];
+        [ud removeObjectForKey:@"AniAngliaLastCardError"];
+        [ud removeObjectForKey:@"AniAngliaLastApiError"];
+        [ud synchronize];
+    }]];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:@"Закрыть" style:UIAlertActionStyleCancel handler:nil]];
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
 -(void)showComingSoonAlert {
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"app.settings.title", @"Настройки")
                                                                    message:@"Этот раздел находится в разработке (еще не реализован в исходном приложении AniAnglia)."
@@ -206,7 +246,11 @@
             [self showComingSoonAlert];
         }
     } else if (section == 3) {
-        [self showComingSoonAlert];
+        if (row == 0) {
+            [self showDebugLogAlert];
+        } else {
+            [self showComingSoonAlert];
+        }
     }
 }
 

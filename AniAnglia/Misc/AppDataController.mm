@@ -42,7 +42,18 @@
     self = [super init];
     
     _user_defaults = user_defaults;
-    _settings_dict = [[_user_defaults objectForKey:@"settings"] mutableCopy];
+    NSDictionary* saved = [_user_defaults objectForKey:@"settings"];
+    if ([saved isKindOfClass:[NSDictionary class]]) {
+        _settings_dict = [saved mutableCopy];
+    } else {
+        _settings_dict = [[AppSettingsDataController getDefaults] mutableCopy];
+    }
+    NSDictionary* defaults = [AppSettingsDataController getDefaults];
+    for (NSString* key in defaults) {
+        if (_settings_dict[key] == nil) {
+            _settings_dict[key] = defaults[key];
+        }
+    }
     
     return self;
 }
@@ -64,7 +75,11 @@
     [self postNotificationForObject:object atKey:key];
 }
 -(id)getSettingsObjectAtKey:(NSString*)key {
-    return [_settings_dict valueForKey:key];
+    id val = [_settings_dict valueForKey:key];
+    if (!val) {
+        val = [AppSettingsDataController getDefaults][key];
+    }
+    return val;
 }
 
 // -- appearance

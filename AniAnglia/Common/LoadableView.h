@@ -21,6 +21,8 @@
 -(void)startLoading;
 -(void)endLoading;
 -(void)endLoadingWithErrored:(BOOL)errored;
+-(void)endLoadingWithErrorMessage:(NSString*)errorMessage;
+-(void)setErrorText:(NSString*)text;
 -(void)setErrored:(BOOL)errored;
 
 @end

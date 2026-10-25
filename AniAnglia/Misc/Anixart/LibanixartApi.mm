@@ -72,35 +72,54 @@
 }
 
 -(void)asyncCall:(BOOL(^)(anixart::Api* api))block completion:(void(^)(BOOL errored))completion {
+    [self asyncCall:block completionWithError:^(BOOL errored, NSString *errorMessage) {
+        if (completion) {
+            completion(errored);
+        }
+    }];
+}
+
+-(void)asyncCall:(BOOL(^)(anixart::Api* api))block completionWithError:(void(^)(BOOL errored, NSString* errorMessage))completion {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         BOOL errored = NO;
+        NSString *errorMessage = nil;
         try {
             errored |= block(self->_api);
         }
         catch (const anixart::ApiError& e) {
-            NSLog(@"Uncatched libanixart api exception: %s", e.what());
-            errored |= YES;
+            errorMessage = [NSString stringWithFormat:@"ApiError: %s (code %d)", e.what(), e.code()];
+            NSLog(@"Uncatched libanixart api exception: %@", errorMessage);
+            errored = YES;
         }
         catch (const network::JsonError& e) {
-            NSLog(@"Uncatched libanixart api json exception: %s", e.what());
-            errored |= YES;
+            errorMessage = [NSString stringWithFormat:@"JsonError: %s", e.what()];
+            NSLog(@"Uncatched libanixart api json exception: %@", errorMessage);
+            errored = YES;
         }
         catch (const network::UrlSessionError& e) {
-            NSLog(@"Uncatched libanixart::UrlSession exception: %s", e.what());
-            errored |= YES;
+            errorMessage = [NSString stringWithFormat:@"NetworkError: %s", e.what()];
+            NSLog(@"Uncatched libanixart::UrlSession exception: %@", errorMessage);
+            errored = YES;
         }
         catch (const std::exception& e) {
-            NSLog(@"Uncatched libanixart std::exception: %s", e.what());
-            errored |= YES;
+            errorMessage = [NSString stringWithFormat:@"Error: %s", e.what()];
+            NSLog(@"Uncatched libanixart std::exception: %@", errorMessage);
+            errored = YES;
         }
         catch (...) {
+            errorMessage = @"Unknown error in libanixart";
             NSLog(@"Uncatched libanixart unknown exception");
-            errored |= YES;
+            errored = YES;
+        }
+        
+        if (errorMessage) {
+            [[NSUserDefaults standardUserDefaults] setObject:errorMessage forKey:@"AniAngliaLastApiError"];
+            [[NSUserDefaults standardUserDefaults] synchronize];
         }
         
         if (completion) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                completion(errored);
+                completion(errored, errorMessage);
             });
         }
     });

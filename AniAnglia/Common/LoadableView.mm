@@ -36,6 +36,8 @@
     _act_ind_view = [UIActivityIndicatorView new];
     
     _error_label = [UILabel new];
+    _error_label.numberOfLines = 0;
+    _error_label.textAlignment = NSTextAlignmentCenter;
     _error_label.text = NSLocalizedString(@"app.loadable.error.text", "");
     
     _error_button = [UIButton new];
@@ -96,7 +98,27 @@
     [self endLoadingWithErrored:NO];
 }
 
+-(void)setErrorText:(NSString*)text {
+    if (text.length > 0) {
+        _error_label.numberOfLines = 0;
+        _error_label.text = text;
+        _error_label.textAlignment = NSTextAlignmentCenter;
+    } else {
+        _error_label.numberOfLines = 0;
+        _error_label.text = NSLocalizedString(@"app.loadable.error.text", "");
+        _error_label.textAlignment = NSTextAlignmentCenter;
+    }
+}
+
+-(void)endLoadingWithErrorMessage:(NSString*)errorMessage {
+    [self setErrorText:errorMessage];
+    [self endLoadingWithErrored:YES];
+}
+
 -(void)endLoadingWithErrored:(BOOL)errored {
+    if (!errored) {
+        [self setErrorText:nil];
+    }
     [self setErrored:errored];
     [_act_ind_view stopAnimating];
 }

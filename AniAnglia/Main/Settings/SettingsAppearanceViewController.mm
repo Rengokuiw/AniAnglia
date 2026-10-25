@@ -116,7 +116,10 @@
             return NSLocalizedString(@"app.settings.appearance.theme.light", "");
         case app_settings::Appearance::Theme::System:
             return NSLocalizedString(@"app.settings.appearance.theme.system", "");
+        default:
+            return NSLocalizedString(@"app.settings.appearance.theme.system", "");
     }
+    return NSLocalizedString(@"app.settings.appearance.theme.system", "");
 }
 -(NSString*)getCurrentMainDisplayStyleName {
     switch ([_settings_data_controller getMainDisplayStyle]) {
@@ -124,7 +127,10 @@
             return NSLocalizedString(@"app.settings.appearance.main_display_style.table", "");
         case app_settings::Appearance::DisplayStyle::Cards:
             return NSLocalizedString(@"app.settings.appearance.main_display_style.cards", "");
+        default:
+            return NSLocalizedString(@"app.settings.appearance.main_display_style.table", "");
     }
+    return NSLocalizedString(@"app.settings.appearance.main_display_style.table", "");
 }
 
 -(void)tableView:(UITableView *)table_view didSelectRowAtIndexPath:(NSIndexPath *)index_path {

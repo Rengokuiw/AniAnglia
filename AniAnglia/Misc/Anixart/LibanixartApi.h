@@ -23,6 +23,7 @@
 -(void)performAsyncBlock:(BOOL(^)(anixart::Api* api))block withUICompletion:(void(^)())completion DEPRECATED_MSG_ATTRIBUTE("Use 'asyncCall:completion:' instead");
 /* completion executed with errored from any catched error or if block returned YES */
 -(void)asyncCall:(BOOL(^)(anixart::Api* api))block completion:(void(^)(BOOL errored))completion;
+-(void)asyncCall:(BOOL(^)(anixart::Api* api))block completionWithError:(void(^)(BOOL errored, NSString* errorMessage))completion;
 
 -(void)setIsAlternativeConnection:(BOOL)is_alternative_connection;
 
