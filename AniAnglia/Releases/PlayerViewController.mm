@@ -172,26 +172,53 @@
     [_indicatorView showInView:self.view isForward:isForward];
 }
 
+static inline Float64 safe_CMTimeGetSeconds(CMTime t) {
+    if ((t.flags & 1) == 0 || t.timescale <= 0) return 0.0;
+    return (Float64)t.value / (Float64)t.timescale;
+}
+
+static inline CMTime safe_CMTimeMakeWithSeconds(Float64 sec, int32_t scale) {
+    if (scale <= 0) scale = 600;
+    CMTime t;
+    t.value = (int64_t)(sec * (Float64)scale);
+    t.timescale = scale;
+    t.flags = 1; // kCMTimeFlags_Valid
+    t.epoch = 0;
+    return t;
+}
+
+static inline CMTime safe_kCMTimeZero() {
+    CMTime t;
+    t.value = 0;
+    t.timescale = 1;
+    t.flags = 1;
+    t.epoch = 0;
+    return t;
+}
+
 - (void)seekByDelta:(Float64)delta {
     AVPlayer *p = self.player;
     if (!p) return;
     
     CMTime current = p.currentTime;
-    if (CMTIME_IS_INVALID(current)) return;
-    Float64 curSeconds = CMTimeGetSeconds(current);
+    if ((current.flags & 1) == 0 || current.timescale <= 0) return;
+    Float64 curSeconds = safe_CMTimeGetSeconds(current);
     Float64 targetSeconds = curSeconds + delta;
     if (targetSeconds < 0.0) targetSeconds = 0.0;
     
     AVPlayerItem *item = p.currentItem;
-    if (item && CMTIME_IS_VALID(item.duration) && item.duration.timescale > 0) {
-        Float64 dur = CMTimeGetSeconds(item.duration);
-        if (dur > 0 && targetSeconds > dur) {
-            targetSeconds = dur;
+    if (item) {
+        CMTime dur = item.duration;
+        if ((dur.flags & 1) != 0 && dur.timescale > 0) {
+            Float64 d = safe_CMTimeGetSeconds(dur);
+            if (d > 0 && targetSeconds > d) {
+                targetSeconds = d;
+            }
         }
     }
     
-    CMTime targetTime = CMTimeMakeWithSeconds(targetSeconds, NSEC_PER_SEC);
-    CMTime tolerance = (targetSeconds <= 0.0) ? kCMTimeZero : CMTimeMakeWithSeconds(1.0, NSEC_PER_SEC);
+    CMTime targetTime = safe_CMTimeMakeWithSeconds(targetSeconds, 600);
+    CMTime tolerance = (targetSeconds <= 0.0) ? safe_kCMTimeZero() : safe_CMTimeMakeWithSeconds(1.0, 600);
     [p seekToTime:targetTime toleranceBefore:tolerance toleranceAfter:tolerance completionHandler:nil];
 }
 

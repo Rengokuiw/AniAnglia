@@ -3855,7 +3855,7 @@
 					"-Wno-unguarded-availability-new",
 				);
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
-				OTHER_LDFLAGS = "-lz";
+				OTHER_LDFLAGS = "-lz -framework CoreMedia";
 				SDKROOT = iphoneos;
 			};
 			name = Debug;
@@ -3921,7 +3921,7 @@
 					"-Wno-unguarded-availability-new",
 				);
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
-				OTHER_LDFLAGS = "-lz";
+				OTHER_LDFLAGS = "-lz -framework CoreMedia";
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
 			};
