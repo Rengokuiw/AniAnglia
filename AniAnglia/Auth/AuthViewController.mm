@@ -162,6 +162,7 @@
     std::string password = TO_STDSTRING(_password_field.text);
     __block BOOL errored = NO;
     __block anixart::codes::auth::SignInCode error_code;
+    __block NSString* general_error_message = nil;
     [_api_proxy performAsyncBlock:^BOOL(anixart::Api* api) {
         // TODO: change api to always execute UICompletion block and return error
         try {
@@ -174,15 +175,29 @@
             errored = YES;
             error_code = e.code;
         }
+        catch (const std::exception& e) {
+            errored = YES;
+            general_error_message = [NSString stringWithUTF8String:e.what()];
+        }
+        catch (...) {
+            errored = YES;
+            general_error_message = NSLocalizedString(@"app.auth.error.unknown", "");
+        }
         return YES;
     } withUICompletion:^{
         [self->_login_indicator stopAnimating];
         if (errored) {
-            if (error_code == anixart::codes::auth::SignInCode::InvalidLogin) {
+            if (general_error_message) {
+                [self->_login_view showError:general_error_message];
+            }
+            else if (error_code == anixart::codes::auth::SignInCode::InvalidLogin) {
                 [self->_login_view showError:NSLocalizedString(@"app.auth.error.invalid_username_or_email", "")];
             }
             else if (error_code == anixart::codes::auth::SignInCode::InvalidPassword) {
                 [self->_password_view showError:NSLocalizedString(@"app.auth.error.invalid_password", "")];
+            }
+            else {
+                [self->_login_view showError:NSLocalizedString(@"app.auth.error.unknown", "")];
             }
         } else {
             [self setRootViewControllerToMain];

@@ -128,7 +128,7 @@
         [_restore_button.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:10.0],
         
         [_activity_indicator_view.centerYAnchor constraintEqualToAnchor:_restore_button.centerYAnchor],
-        [_activity_indicator_view.trailingAnchor constraintEqualToAnchor:_restore_button.layoutMarginsGuide.trailingAnchor]
+        [_activity_indicator_view.trailingAnchor constraintEqualToAnchor:_restore_button.trailingAnchor constant:-15.0]
     ]];
 }
 
@@ -209,6 +209,11 @@
         } catch (const anixart::RestoreError& e) {
             error_code = e.code;
             return YES;
+        } catch (const std::exception& e) {
+            NSLog(@"Restore error: %s", e.what());
+            return YES;
+        } catch (...) {
+            return YES;
         }
         return NO;
     } completion:^(BOOL errored) {
@@ -257,6 +262,11 @@
         } catch (const anixart::RestoreResendError& e) {
             error_code = e.code;
             return YES;
+        } catch (const std::exception& e) {
+            NSLog(@"Restore resend error: %s", e.what());
+            return YES;
+        } catch (...) {
+            return YES;
         }
         return NO;
     } completion:^(BOOL errored) {
@@ -294,6 +304,11 @@
             profile_token = std::move(result.second);
         } catch (const anixart::RestoreVerifyError& e) {
             error_code = e.code;
+            return YES;
+        } catch (const std::exception& e) {
+            NSLog(@"Restore verify error: %s", e.what());
+            return YES;
+        } catch (...) {
             return YES;
         }
         return NO;

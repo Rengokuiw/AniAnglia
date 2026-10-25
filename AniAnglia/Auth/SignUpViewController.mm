@@ -156,7 +156,7 @@
         [_signup_button.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:10.0],
         
         [_activity_indicator_view.centerYAnchor constraintEqualToAnchor:_signup_button.centerYAnchor],
-        [_activity_indicator_view.trailingAnchor constraintEqualToAnchor:_signup_button.layoutMarginsGuide.trailingAnchor]
+        [_activity_indicator_view.trailingAnchor constraintEqualToAnchor:_signup_button.trailingAnchor constant:-15.0]
     ]];
 }
 
@@ -263,6 +263,11 @@
         } catch (const anixart::SignUpError& e) {
             error_code = e.code;
             return YES;
+        } catch (const std::exception& e) {
+            NSLog(@"SignUp error: %s", e.what());
+            return YES;
+        } catch (...) {
+            return YES;
         }
         return NO;
     } completion:^(BOOL errored) {
@@ -322,6 +327,11 @@
         } catch (const anixart::ResendError& e) {
             error_code = e.code;
             return YES;
+        } catch (const std::exception& e) {
+            NSLog(@"SignUp resend error: %s", e.what());
+            return YES;
+        } catch (...) {
+            return YES;
         }
         return NO;
     } completion:^(BOOL errored) {
@@ -359,6 +369,11 @@
             profile_token = std::move(signup_ret.second);
         } catch(const anixart::VerifyError& e) {
             error_code = e.code;
+            return YES;
+        } catch (const std::exception& e) {
+            NSLog(@"SignUp verify error: %s", e.what());
+            return YES;
+        } catch (...) {
             return YES;
         }
         return NO;
