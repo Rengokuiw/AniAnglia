@@ -215,7 +215,7 @@
         }];
     }
     UIMenu* menu = [UIMenu menuWithTitle:actions[0].title children:menu_actions];
-    [_button setMenu:menu];
+    [(id)_button setMenu:(id)menu];
 }
 @end
 

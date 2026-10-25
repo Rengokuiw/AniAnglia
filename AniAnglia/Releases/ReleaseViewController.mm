@@ -862,7 +862,7 @@
     
     _add_list_button = [UIButton new];
     [_add_list_button setImage:[UIImage systemImageNamed:@"chevron.down"] forState:UIControlStateNormal];
-    [_add_list_button setMenu:[self makeAddListButtonMenu]];
+    [(id)_add_list_button setMenu:(id)[self makeAddListButtonMenu]];
     _add_list_button.showsMenuAsPrimaryAction = YES;
     _add_list_button.layer.cornerRadius = 8.0;
     _add_list_button.contentEdgeInsets = UIEdgeInsetsMake(0, 6, 0, 6);
@@ -1157,7 +1157,7 @@
     [_add_list_button setTitle:[ProfileListsView getListStatusName:_release->profile_list_status] forState:UIControlStateNormal];
 }
 
--(UIMenu*)makeAddListButtonMenu {
+-(id)makeAddListButtonMenu {
     return [UIMenu menuWithChildren:@[
         [UIAction actionWithTitle:[ProfileListsView getListStatusName:anixart::Profile::ListStatus::NotWatching] image:nil identifier:nil handler:^(UIAction* action) {
             [self onAddListMenuItemSelected:anixart::Profile::ListStatus::NotWatching];

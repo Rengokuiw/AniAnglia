@@ -366,6 +366,6 @@
 }
 -(void)setMenuActions:(NSArray<UIAction*>*)actions {
     _menu = [UIMenu menuWithTitle:@"" children:actions];
-    [_button setMenu:_menu];
+    [(id)_button setMenu:(id)_menu];
 }
 @end
