@@ -233,6 +233,24 @@
     ]];
 }
 
+-(NSArray<UITableViewRowAction *> *)tableView:(UITableView *)tableView editActionsForRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSInteger index = [indexPath item];
+    UITableViewRowAction *downloadAction = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleNormal title:NSLocalizedString(@"app.episodes.download", @"Скачать") handler:^(UITableViewRowAction *action, NSIndexPath *ip) {
+        [self cellDownloadButtonActionPressed:ip];
+        [tableView setEditing:NO animated:YES];
+    }];
+    downloadAction.backgroundColor = [UIColor colorWithRed:0.37 green:0.62 blue:0.63 alpha:1.0];
+    
+    NSString *viewedTitle = !_episodes[index]->is_watched ? NSLocalizedString(@"app.episodes.mark_viewed", @"Просмотрено") : NSLocalizedString(@"app.episodes.mark_unviewed", @"Не просмотрено");
+    UITableViewRowAction *viewedAction = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleNormal title:viewedTitle handler:^(UITableViewRowAction *action, NSIndexPath *ip) {
+        [self cellChangeViewedActionPressed:ip];
+        [tableView setEditing:NO animated:YES];
+    }];
+    viewedAction.backgroundColor = [UIColor colorWithRed:0.2 green:0.5 blue:0.8 alpha:1.0];
+    
+    return @[viewedAction, downloadAction];
+}
+
 -(void)tableView:(UITableView *)table_view didSelectRowAtIndexPath:(NSIndexPath *)index_path {
     NSInteger index = [index_path item];
     EpisodeViewCell* cell = [table_view cellForRowAtIndexPath:index_path];

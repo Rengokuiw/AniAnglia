@@ -96,12 +96,13 @@
     self.navigationItem.rightBarButtonItem = _refresh_bar_button;
     [self setRefreshButtonEnabled:NO errored:NO];
     
-    UIContextMenuInteraction* comment_context_menu = [[UIContextMenuInteraction alloc] initWithDelegate:self];
-    
     _replied_comment_view = [[CommentsTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:[CommentsTableViewCell getIdentifier]];
     _replied_comment_view.selectionStyle = UITableViewCellSelectionStyleNone;
     _replied_comment_view.delegate = self;
-    [_replied_comment_view.contentView addInteraction:comment_context_menu];
+    if (@available(iOS 13.0, *)) {
+        UIContextMenuInteraction* comment_context_menu = [[UIContextMenuInteraction alloc] initWithDelegate:self];
+        [_replied_comment_view.contentView addInteraction:comment_context_menu];
+    }
     
     if (_is_release_comment) {
         _comments_table_view_controller = [[CommentsTableViewController alloc] initWithTableView:[UITableView new] pages:_api_proxy.api->releases().replies_to_comment(_comment_id, 0, anixart::Comment::Sort::Oldest)];

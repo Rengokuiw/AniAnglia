@@ -10,28 +10,52 @@
 
 @implementation AppDefaultDarkTheme
 -(UIColor*)backgroundColor {
-    return [UIColor systemBackgroundColor];
+    if (@available(iOS 13.0, *)) {
+        return [UIColor systemBackgroundColor];
+    }
+    return [UIColor colorWithRed:0.07 green:0.07 blue:0.07 alpha:1.0];
 }
 -(UIColor*)foregroundColor1 {
-    return [UIColor secondarySystemBackgroundColor];
+    if (@available(iOS 13.0, *)) {
+        return [UIColor secondarySystemBackgroundColor];
+    }
+    return [UIColor colorWithRed:0.12 green:0.12 blue:0.12 alpha:1.0];
 }
 -(UIColor*)foregroundColor2 {
-    return [UIColor tertiarySystemBackgroundColor];
+    if (@available(iOS 13.0, *)) {
+        return [UIColor tertiarySystemBackgroundColor];
+    }
+    return [UIColor colorWithRed:0.16 green:0.16 blue:0.16 alpha:1.0];
 }
 -(UIColor*)primaryColor {
-    return [UIColor systemBlueColor];
+    if (@available(iOS 13.0, *)) {
+        return [UIColor systemBlueColor];
+    }
+    return [UIColor colorWithRed:0.0 green:0.478 blue:1.0 alpha:1.0];
 }
 -(UIColor*)secondaryColor {
-    return [UIColor systemRedColor];
+    if (@available(iOS 13.0, *)) {
+        return [UIColor systemRedColor];
+    }
+    return [UIColor colorWithRed:1.0 green:0.231 blue:0.188 alpha:1.0];
 }
 -(UIColor*)alertColor {
-    return [UIColor systemRedColor];
+    if (@available(iOS 13.0, *)) {
+        return [UIColor systemRedColor];
+    }
+    return [UIColor colorWithRed:1.0 green:0.231 blue:0.188 alpha:1.0];
 }
 -(UIColor*)successColor {
-    return [UIColor systemGreenColor];
+    if (@available(iOS 13.0, *)) {
+        return [UIColor systemGreenColor];
+    }
+    return [UIColor colorWithRed:0.298 green:0.851 blue:0.392 alpha:1.0];
 }
 -(UIColor*)idleColor {
-    return [UIColor systemOrangeColor];
+    if (@available(iOS 13.0, *)) {
+        return [UIColor systemOrangeColor];
+    }
+    return [UIColor colorWithRed:1.0 green:0.584 blue:0.0 alpha:1.0];
 }
 -(UIColor*)textColor {
     return [UIColor whiteColor];
@@ -46,28 +70,52 @@
 
 @implementation AppDefaultLightTheme
 -(UIColor*)backgroundColor {
-    return [UIColor systemBackgroundColor];
+    if (@available(iOS 13.0, *)) {
+        return [UIColor systemBackgroundColor];
+    }
+    return [UIColor whiteColor];
 }
 -(UIColor*)foregroundColor1 {
-    return [UIColor secondarySystemBackgroundColor];
+    if (@available(iOS 13.0, *)) {
+        return [UIColor secondarySystemBackgroundColor];
+    }
+    return [UIColor colorWithRed:0.95 green:0.95 blue:0.97 alpha:1.0];
 }
 -(UIColor*)foregroundColor2 {
-    return [UIColor tertiarySystemBackgroundColor];
+    if (@available(iOS 13.0, *)) {
+        return [UIColor tertiarySystemBackgroundColor];
+    }
+    return [UIColor colorWithRed:0.90 green:0.90 blue:0.92 alpha:1.0];
 }
 -(UIColor*)primaryColor {
-    return [UIColor systemBlueColor];
+    if (@available(iOS 13.0, *)) {
+        return [UIColor systemBlueColor];
+    }
+    return [UIColor colorWithRed:0.0 green:0.478 blue:1.0 alpha:1.0];
 }
 -(UIColor*)secondaryColor {
-    return [UIColor systemRedColor];
+    if (@available(iOS 13.0, *)) {
+        return [UIColor systemRedColor];
+    }
+    return [UIColor colorWithRed:1.0 green:0.231 blue:0.188 alpha:1.0];
 }
 -(UIColor*)alertColor {
-    return [UIColor systemRedColor];
+    if (@available(iOS 13.0, *)) {
+        return [UIColor systemRedColor];
+    }
+    return [UIColor colorWithRed:1.0 green:0.231 blue:0.188 alpha:1.0];
 }
 -(UIColor*)successColor {
-    return [UIColor systemGreenColor];
+    if (@available(iOS 13.0, *)) {
+        return [UIColor systemGreenColor];
+    }
+    return [UIColor colorWithRed:0.298 green:0.851 blue:0.392 alpha:1.0];
 }
 -(UIColor*)idleColor {
-    return [UIColor systemOrangeColor];
+    if (@available(iOS 13.0, *)) {
+        return [UIColor systemOrangeColor];
+    }
+    return [UIColor colorWithRed:1.0 green:0.584 blue:0.0 alpha:1.0];
 }
 -(UIColor*)textColor {
     return [UIColor blackColor];
@@ -122,10 +170,15 @@ static AppThemes app_themes = {
     }
 }
 +(UIColor*)colorFromThemeDynamic:(app_theme_color_getter_t)getter {
-    return [UIColor colorWithDynamicProvider:^UIColor*(UITraitCollection* trait_collection) {
-        id<AppColorTheme> theme = [self getThemeForStyle:trait_collection.userInterfaceStyle];
+    if (@available(iOS 13.0, *)) {
+        return [UIColor colorWithDynamicProvider:^UIColor*(UITraitCollection* trait_collection) {
+            id<AppColorTheme> theme = [self getThemeForStyle:trait_collection.userInterfaceStyle];
+            return getter(theme);
+        }];
+    } else {
+        id<AppColorTheme> theme = [self getThemeForStyle:default_style];
         return getter(theme);
-    }];
+    }
 }
 
 +(UIColor*)backgroundColor {

@@ -16,17 +16,30 @@
 
 @implementation MainWindow
 
--(instancetype)initWithWindowScene:(UIWindowScene*)scene {
-    self = [super initWithWindowScene:scene];
-    
+-(void)commonInit {
     [self setRootViewController:[self getFirstRootViewController]];
     
     AppSettingsDataController* settings_controller = [[AppDataController sharedInstance] getSettingsController];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onSettingsValueChanged:) name:(app_settings::notification_name) object:nil];
     [self setAppTheme:[settings_controller getTheme]];
-    
+}
+
+-(instancetype)initWithWindowScene:(UIWindowScene*)scene {
+    self = [super initWithWindowScene:scene];
+    if (self) {
+        [self commonInit];
+    }
     return self;
 }
+
+-(instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        [self commonInit];
+    }
+    return self;
+}
+
 -(UIViewController*)getFirstRootViewController {
     NSString* token = [[AppDataController sharedInstance] getToken];
     if ([token length] == 0) {
@@ -50,17 +63,20 @@
     app_settings::Appearance::Theme theme = static_cast<app_settings::Appearance::Theme>([value integerValue]);
     [self setAppTheme:theme];
 }
+
 -(void)setAppTheme:(app_settings::Appearance::Theme)theme {
-    switch (theme) {
-        case app_settings::Appearance::Theme::System:
-            self.overrideUserInterfaceStyle = UIUserInterfaceStyleUnspecified;
-            break;
-        case app_settings::Appearance::Theme::Light:
-            self.overrideUserInterfaceStyle = UIUserInterfaceStyleLight;
-            break;
-        case app_settings::Appearance::Theme::Dark:
-            self.overrideUserInterfaceStyle = UIUserInterfaceStyleDark;
-            break;
+    if (@available(iOS 13.0, *)) {
+        switch (theme) {
+            case app_settings::Appearance::Theme::System:
+                self.overrideUserInterfaceStyle = UIUserInterfaceStyleUnspecified;
+                break;
+            case app_settings::Appearance::Theme::Light:
+                self.overrideUserInterfaceStyle = UIUserInterfaceStyleLight;
+                break;
+            case app_settings::Appearance::Theme::Dark:
+                self.overrideUserInterfaceStyle = UIUserInterfaceStyleDark;
+                break;
+        }
     }
 }
 

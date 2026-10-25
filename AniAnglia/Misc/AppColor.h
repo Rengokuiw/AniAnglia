@@ -7,6 +7,7 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import "iOS10Compat.h"
 
 @protocol AppColorTheme
 -(UIColor*)backgroundColor;

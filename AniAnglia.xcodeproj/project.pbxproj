@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		EF10C09A7000000000000002 /* iOS10Compat.mm in Sources */ = {isa = PBXBuildFile; fileRef = EF10C09A7000000000000001 /* iOS10Compat.mm */; };
 		EF0D7D192D26F0E7000E516A /* libanixart.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF0D7D182D26F0E7000E516A /* libanixart.xcframework */; };
 		EF15C9222DF8582100335578 /* NamedSectionView.mm in Sources */ = {isa = PBXBuildFile; fileRef = EF15C9212DF8582100335578 /* NamedSectionView.mm */; };
 		EF17A2E62DB6B259003429FC /* ProfilesPageableDataProvider.mm in Sources */ = {isa = PBXBuildFile; fileRef = EF17A2E52DB6B259003429FC /* ProfilesPageableDataProvider.mm */; };
@@ -61,7 +62,6 @@
 		EFA1F93B2CB4301B00555A26 /* EpisodeSelectViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = EFA1F9392CB4301A00555A26 /* EpisodeSelectViewController.mm */; };
 		EFA1F93D2CB4920800555A26 /* PlayerViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = EFA1F93C2CB4920800555A26 /* PlayerViewController.mm */; };
 		EFA1F9402CB497D600555A26 /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EFA1F93F2CB497D500555A26 /* AVKit.framework */; };
-		EFA1F9422CB8EA7300555A26 /* AVFAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EFA1F9412CB8EA7300555A26 /* AVFAudio.framework */; };
 		EFA1F9442CB8EA8000555A26 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EFA1F9432CB8EA7F00555A26 /* AVFoundation.framework */; };
 		EFA4D6722D59146B00005139 /* libnetsess.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = EFA4D6712D59146B00005139 /* libnetsess.xcframework */; };
 		EFA7322F2DFE25A900FBC12C /* NamedSectionsStackView.mm in Sources */ = {isa = PBXBuildFile; fileRef = EFA7322E2DFE25A900FBC12C /* NamedSectionsStackView.mm */; };
@@ -98,6 +98,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		EF10C09A7000000000000001 /* iOS10Compat.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = iOS10Compat.mm; sourceTree = "<group>"; };
+		EF10C09A7000000000000003 /* iOS10Compat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iOS10Compat.h; sourceTree = "<group>"; };
 		EF0D7D182D26F0E7000E516A /* libanixart.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = libanixart.xcframework; path = AniAnglia/Libraries/aateam/libanixart/libanixart.xcframework; sourceTree = "<group>"; };
 		EF0D7D1C2D26F0F9000E516A /* libtorrentrepo.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = libtorrentrepo.xcframework; path = AniAnglia/Libraries/aateam/libtorrentrepo/libtorrentrepo.xcframework; sourceTree = "<group>"; };
 		EF15C91F2DF75B3A00335578 /* DataReloadable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DataReloadable.h; sourceTree = "<group>"; };
@@ -1366,7 +1368,6 @@
 		EFA1F93C2CB4920800555A26 /* PlayerViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = PlayerViewController.mm; sourceTree = "<group>"; };
 		EFA1F93E2CB4922200555A26 /* PlayerViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlayerViewController.h; sourceTree = "<group>"; };
 		EFA1F93F2CB497D500555A26 /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
-		EFA1F9412CB8EA7300555A26 /* AVFAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFAudio.framework; path = System/Library/Frameworks/AVFAudio.framework; sourceTree = SDKROOT; };
 		EFA1F9432CB8EA7F00555A26 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		EFA4D6712D59146B00005139 /* libnetsess.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = libnetsess.xcframework; path = AniAnglia/Libraries/aateam/libnetsess/libnetsess.xcframework; sourceTree = "<group>"; };
 		EFA7322D2DFE259600FBC12C /* NamedSectionsStackView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NamedSectionsStackView.h; sourceTree = "<group>"; };
@@ -1436,7 +1437,6 @@
 				EFA1F9402CB497D600555A26 /* AVKit.framework in Frameworks */,
 				EFD5CD702CDABD1700A1E057 /* boost_json.xcframework in Frameworks */,
 				EFE474972CFA42B600508136 /* MediaPlayer.framework in Frameworks */,
-				EFA1F9422CB8EA7300555A26 /* AVFAudio.framework in Frameworks */,
 				EF0D7D192D26F0E7000E516A /* libanixart.xcframework in Frameworks */,
 				EFA1F9442CB8EA8000555A26 /* AVFoundation.framework in Frameworks */,
 				EF8097D02D15DC05006F18DF /* try_signal.xcframework in Frameworks */,
@@ -1524,6 +1524,8 @@
 		EF44D0D22CD6A3D600C8B608 /* Misc */ = {
 			isa = PBXGroup;
 			children = (
+				EF10C09A7000000000000003 /* iOS10Compat.h */,
+				EF10C09A7000000000000001 /* iOS10Compat.mm */,
 				EFCBC3A22D54F67A00080866 /* Anixart */,
 				EFC6077C2C7616B200BA8B44 /* TextErrorField.h */,
 				EFC6077A2C76169500BA8B44 /* TextErrorField.mm */,
@@ -3552,7 +3554,6 @@
 				EFE474962CFA42B500508136 /* MediaPlayer.framework */,
 				EF5F02B62CCE956700EA11BB /* Libraries */,
 				EFA1F9432CB8EA7F00555A26 /* AVFoundation.framework */,
-				EFA1F9412CB8EA7300555A26 /* AVFAudio.framework */,
 				EFA1F93F2CB497D500555A26 /* AVKit.framework */,
 				EF875C7F2C78FB7400DAECB1 /* Security.framework */,
 				EF4941142C723F8600832A6C /* CoreGraphics.framework */,
@@ -3698,6 +3699,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EF10C09A7000000000000002 /* iOS10Compat.mm in Sources */,
 				EF9FE8632DB3196500792D0D /* ReleasesViewController.mm in Sources */,
 				EF5A3CB32C7F92A300B4F637 /* AppDataController.mm in Sources */,
 				EFD505E42CB0764700E87BF1 /* SourceSelectViewController.mm in Sources */,
@@ -3837,7 +3839,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -3900,7 +3902,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -3934,7 +3936,7 @@
 				INFOPLIST_KEY_UIStatusBarStyle = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3964,7 +3966,7 @@
 				INFOPLIST_KEY_UIStatusBarStyle = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

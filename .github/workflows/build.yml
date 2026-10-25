@@ -2,6 +2,8 @@ name: Build iOS App
 
 on:
   workflow_dispatch:
+  push:
+    branches: [ master, main ]
 
 jobs:
   build:
@@ -13,6 +15,17 @@ jobs:
       - name: Select Xcode version
         run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 
+      - name: Allow iOS 10 deployment target in SDK
+        run: |
+          SDK_PATH=$(xcrun --sdk iphoneos --show-sdk-path)
+          echo "SDK path: $SDK_PATH"
+          if [ -f "$SDK_PATH/SDKSettings.json" ]; then
+            sudo sed -i '' -E 's/"DEPLOYMENT_TARGET_SUGGESTED_MINIMUM": "[0-9.]*"/"DEPLOYMENT_TARGET_SUGGESTED_MINIMUM": "10.0"/' "$SDK_PATH/SDKSettings.json" || true
+          fi
+          if [ -f "$SDK_PATH/SDKSettings.plist" ]; then
+            sudo plutil -replace DefaultProperties.DEPLOYMENT_TARGET_SUGGESTED_MINIMUM -string "10.0" "$SDK_PATH/SDKSettings.plist" || true
+          fi
+
       - name: Build project
         run: |
           xcodebuild -project AniAnglia.xcodeproj \
@@ -20,6 +33,7 @@ jobs:
             -configuration Release \
             -sdk iphoneos \
             -derivedDataPath build \
+            IPHONEOS_DEPLOYMENT_TARGET=10.0 \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             ONLY_ACTIVE_ARCH=NO \
@@ -33,6 +47,7 @@ jobs:
             echo "Error: .app bundle not found"
             exit 1
           fi
+          plutil -replace MinimumOSVersion -string "10.0" "$APP_PATH/Info.plist" || true
           echo "app_path=$APP_PATH" >> $GITHUB_OUTPUT
           echo "Found app at: $APP_PATH"
 
@@ -42,12 +57,12 @@ jobs:
           APP_NAME=$(basename "$APP_PATH")
           mkdir -p Payload
           cp -R "$APP_PATH" Payload/
-          zip -r AniAnglia.ipa Payload
+          zip -r AniAnglia-iOS10.ipa Payload
           rm -rf Payload
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
-          name: AniAnglia.ipa
-          path: AniAnglia.ipa
+          name: AniAnglia-iOS10.ipa
+          path: AniAnglia-iOS10.ipa
           retention-days: 7
